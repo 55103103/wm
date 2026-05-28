@@ -28,11 +28,11 @@
         .fair-wp-value { font-size: 1.1rem; font-weight: bold; margin-top: 5px; line-height: 1.6; }
         .fair-wp-num { color: #2962ff; }
         
-        /* ４．入力履歴用 */
-        .history-list { font-size: 0.85rem; max-height: 220px; overflow-y: auto; }
+        /* ４．入力履歴用（ご指定通り高さを1.5倍の330pxに拡大） */
+        .history-list { font-size: 0.85rem; max-height: 330px; overflow-y: auto; }
         .history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #2a2e39; }
-        .history-text { display: flex; flex-direction: column; gap: 4px; width: 80%; }
-        .history-memo { font-size: 0.8rem; color: #848e9c; background: #1e222d; padding: 4px 8px; border-radius: 4px; display: inline-block; width: fit-content; word-break: break-all; }
+        .history-text { display: flex; flex-direction: row; align-items: center; gap: 8px; width: 85%; flex-wrap: wrap; }
+        .history-memo { font-size: 0.8rem; color: #848e9c; background: #1e222d; padding: 2px 6px; border-radius: 4px; max-width: 100%; word-break: break-all; }
         .btn-delete { background: #f23645; color: white; padding: 6px 10px; font-size: 0.75rem; border-radius: 4px; border: none; width: auto; margin: 0; }
         .btn-delete:hover { background: #cf202f; }
         
@@ -154,7 +154,6 @@
                 return;
             }
 
-            // 日時とメモのみ（体重空欄）の場合はnullとして扱う
             var finalWeight = null;
             if (!isNaN(inputVal) && inputVal > 0) {
                 finalWeight = inputVal;
@@ -166,13 +165,12 @@
 
             var rawHistory = JSON.parse(localStorage.getItem('weightMarketRawData')) || [];
             
-            // 過去データ互換処理
             rawHistory = rawHistory.map(item => {
                 if (item.wp > 150) { 
                     item.wp = Math.round((item.wp / 10) * 10) / 10;
                 }
                 if (item.memo === undefined) {
-                    item.memo = ""; // 過去データに空のメモ属性を付与
+                    item.memo = "";
                 }
                 return item;
             });
@@ -223,7 +221,6 @@
                 <span class="fair-wp-label-text">BMI18.5 ～ 25:</span> <span class="fair-wp-num">${fairMinKg.toFixed(1)}kg ～ ${fairMaxKg.toFixed(1)}kg</span>
             `;
 
-            // 入力履歴の生成（メモ表示を追加）
             var historyListDiv = document.getElementById('historyList');
             if (rawHistory.length === 0) {
                 historyListDiv.innerHTML = '履歴がありません';
@@ -231,12 +228,14 @@
                 var html = '';
                 [...rawHistory].reverse().forEach(item => {
                     var displayTime = item.dateTime.replace('T', ' ');
-                    var weightDisplay = item.wp !== null ? `${item.wp.toFixed(1)}kg` : '--- kg (メモのみ)';
+                    
+                    // 体重がない場合は空欄（非表示）にし、メモだけを右隣に綺麗に並べるロジック
+                    var weightDisplay = item.wp !== null ? `➡️ <strong>${item.wp.toFixed(1)}kg</strong>` : '';
                     var memoHtml = item.memo ? `<span class="history-memo">📝 ${item.memo}</span>` : '';
                     
                     html += `<div class="history-item">
                         <div class="history-text">
-                            <span>📅 ${displayTime} ➡️ <strong>${weightDisplay}</strong></span>
+                            <span>📅 ${displayTime} ${weightDisplay}</span>
                             ${memoHtml}
                         </div>
                         <button class="btn-delete" onclick="deletePrice(${item.id})">削除</button>
@@ -245,7 +244,6 @@
                 historyListDiv.innerHTML = html;
             }
 
-            // チャートとAIコメント生成用には「体重が入力されているデータ」のみを抽出して渡す
             var validWeightHistory = rawHistory.filter(item => item.wp !== null);
 
             var dailyGroups = {};
@@ -354,7 +352,6 @@
                 `<span class="status-badge status-fair">適正値（Fair Trade / BMI: ${currentBMI.toFixed(1)}）</span>` : 
                 `<span class="status-badge">要調整（アンダー / オーバーバリュー / BMI: ${currentBMI.toFixed(1)}）</span>`;
 
-            // 【ご指定通り】バッジを最上部に独立配置
             badgeDiv.innerHTML = fairStatusHtml;
 
             var comment = "";
