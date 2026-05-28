@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weight Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        body { font-family: sans-serif; padding: 15px; background: #f4f6f9; margin: 0; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        h2 { margin-top: 0; color: #333; font-size: 1.1rem; border-left: 4px solid #007aff; padding-left: 8px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.85rem; color: #555; }
+        input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        button { width: 100%; padding: 12px; background: #007aff; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; margin-bottom: 10px; }
+        .btn-danger { background: #ff3b30; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>📊 今日の体重を入力</h2>
+        <div class="grid">
+            <div>
+                <label>日付</label>
+                <input type="date" id="weightDate">
+            </div>
+            <div>
+                <label>朝の体重 (始値)</label>
+                <input type="number" id="openW" step="0.1" value="65.0">
+            </div>
+            <div>
+                <label>昼の最高 (高値)</label>
+                <input type="number" id="highW" step="0.1" value="65.5">
+            </div>
+            <div>
+                <label>夜の最軽量 (安値)</label>
+                <input type="number" id="lowW" step="0.1" value="64.5">
+            </div>
+            <div style="grid-column: span 2;">
+                <label>夜の就寝前 (終値)</label>
+                <input type="number" id="closeW" step="0.1" value="64.8">
+            </div>
+        </div>
+        <button onclick="saveData()">データを保存してチャート更新</button>
+        <button onclick="clearData()" class="btn-danger">全データを削除</button>
+    </div>
+
+    <div class="card">
+        <h2>📉 ダイエット・ローソク足チャート</h2>
+        <div id="chart"></div>
+    </div>
+
+    <script>
+        // 本日の日付を自動セット
+        document.getElementById('weightDate').value = new Date().toISOString().substring(0, 10);
+
+        // チャートの初期設定
+        var options = {
+            series: [{ data: [] }],
+            chart: { type: 'candlestick', height: 350, toolbar: { show: false } },
+            xaxis: { type: 'category' },
+            yaxis: { tooltip: { enabled: true } },
+            plotOptions: { candlestick: { colors: { upward: '#ff3b30', downward: '#34c759' } } } // 陽線=赤、陰線=緑（減少）
+        };
+
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+
+        // ページを開いた時に自動でデータを読み込む
+        window.onload = function() {
+            loadChart();
+        };
+
+        // データを保存する関数
+        function saveData() {
+            var date = document.getElementById('weightDate').value;
+            var o = parseFloat(document.getElementById('openW').value);
+            var h = parseFloat(document.getElementById('highW').value);
+            var l = parseFloat(document.getElementById('lowW').value);
+            var c = parseFloat(document.getElementById('closeW').value);
+
+            // 既存のデータを取得、なければ空の配列
+            var historyData = JSON.parse(localStorage.getItem('dietCandleData')) || [];
+
+            // 同じ日付のデータがあれば上書き、なければ新規追加
+            var existingIndex = historyData.findIndex(item => item.date === date);
+            var newData = { date: date, open: o, high: h, low: l, close: c };
+
+            if (existingIndex > -1) {
+                historyData[existingIndex] = newData;
+            } else {
+                historyData.push(newData);
+            }
+
+            // 日付順に並び替え
+            historyData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            // スマホ（ブラウザ）に保存
+            localStorage.setItem('dietCandleData', JSON.stringify(historyData));
+
+            alert('データを保存しました！');
+            loadChart();
+        }
+
+        // チャートを描画する関数
+        function loadChart() {
+            var historyData = JSON.parse(localStorage.getItem('dietCandleData')) || [];
+            
+            // ApexCharts用のデータ形式に変換
+            var chartData = historyData.map(function(item) {
+                return {
+                    x: item.date,
+                    y: [item.open, item.high, item.low, item.close]
+                };
+            });
+
+            chart.updateSeries([{ data: chartData }]);
+        }
+
+        // データを全削除する関数
+        function clearData() {
+            if (confirm('これまでの記録をすべて削除しますか？')) {
+                localStorage.removeItem('dietCandleData');
+                loadChart();
+            }
+        }
+    </script>
+</body>
+</html>
