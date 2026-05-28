@@ -19,10 +19,10 @@
         .btn-secondary { background: #2a2e39; color: #b2b5be; margin-bottom: 15px; }
         .btn-secondary:hover { background: #363c4e; }
         
-        /* １．WEIGHT MARKET 概況用 */
-        .market-report { background: #1e222d; padding: 15px; border-radius: 8px; border-left: 4px solid #f0b90b; font-size: 0.9rem; line-height: 1.6; color: #eaecef; }
+        /* １．WEIGHT MARKET 概況用（内枠を撤去し、横幅をフルに活用） */
+        .market-report { font-size: 0.9rem; line-height: 1.6; color: #eaecef; }
         
-        /* 新設：Fair WP 表示エリア */
+        /* Fair WP 表示エリア */
         .fair-wp-display { background: #1e222d; padding: 12px; border-radius: 8px; border: 1px dashed #2962ff; font-size: 0.9rem; color: #fff; text-align: center; }
         .fair-wp-value { font-size: 1.4rem; font-weight: bold; color: #2962ff; margin-top: 5px; }
         
@@ -45,11 +45,6 @@
     </div>
 
     <div class="card">
-        <h2>📉 板チャート (Candlestick + MA)</h2>
-        <div id="chart"></div>
-    </div>
-
-    <div class="card">
         <h2>📊 Weight Priceを入力</h2>
         <div class="grid">
             <div>
@@ -62,6 +57,11 @@
             </div>
         </div>
         <button onclick="savePrice()">入力</button>
+    </div>
+
+    <div class="card">
+        <h2>📉 板チャート (Candlestick + MA)</h2>
+        <div id="chart"></div>
     </div>
 
     <div class="card">
@@ -140,7 +140,8 @@
             rawHistory.sort((a, b) => a.id - b.id);
             localStorage.setItem('weightMarketRawData', JSON.stringify(rawHistory));
 
-            alert('Weight Priceをフィックスしました。');
+            // アラートのメッセージをご指定通りに変更
+            alert('Weight Priceを入力しました。');
             document.getElementById('weightPrice').value = '';
             setNowDateTime();
             loadMarketData();
@@ -160,12 +161,10 @@
             var profile = JSON.parse(localStorage.getItem('weightMarketProfile')) || { height: 170, gender: 'male' };
             var heightM = profile.height / 100;
 
-            // BMI 22に基づく Fair WP (適正価格) の演算
             var fairCenterWP = Math.round((22 * heightM * heightM) * 10);
             var fairMinWP = Math.round((18.5 * heightM * heightM) * 10);
             var fairMaxWP = Math.round((25 * heightM * heightM) * 10);
 
-            // プロフィール画面の Fair WP 表示を更新
             document.getElementById('fairWpTarget').innerHTML = `Fair WP: ${fairCenterWP} WP <span style="font-size:0.8rem; color:#848e9c;">(${fairMinWP} 〜 ${fairMaxWP})</span>`;
 
             var historyListDiv = document.getElementById('historyList');
