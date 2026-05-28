@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weight Market - HOW TO</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 15px; background: #0b0e14; color: #c5c7d0; margin: 0; line-height: 1.6; }
+        .card { background: #131722; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); margin-bottom: 15px; border: 1px solid #2a2e39; }
+        h1 { color: #fff; font-size: 1.3rem; margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid #2a2e39; padding-bottom: 10px; }
+        h2 { color: #fff; font-size: 1rem; border-left: 4px solid #2962ff; padding-left: 8px; margin-top: 25px; margin-bottom: 10px; }
+        p, ul { font-size: 0.9rem; margin: 0 0 12px 0; padding-left: 0; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+        .highlight { color: #2962ff; font-weight: bold; }
+        .security-box { background: rgba(8, 209, 88, 0.1); border: 1px solid #08d158; padding: 15px; border-radius: 8px; margin-top: 15px; color: #eaecef; }
+        .security-title { color: #08d158; font-weight: bold; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
+        button { width: 100%; padding: 12px; background: #2a2e39; color: #b2b5be; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        button:hover { background: #363c4e; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>📖 WEIGHT MARKET 案内所</h1>
+        
+        <!-- 【最重要】安心のセキュリティ解説を冒頭に配置 -->
+        <div class="security-box">
+            <div class="security-title">🔒 セキュリティ・個人情報の保護について</div>
+            <p style="font-size: 0.85rem; margin: 0;">
+                本アプリに入力された体重や身長などのデータは、<strong>すべてあなたがお使いのスマホ（ブラウザ）の内部だけに保存されます。</strong><br>
+                外部のサーバーやインターネット上へ送信されることは一切ないため、あなたのデリケートな体重情報がウェブに漏れる心配は100%ありません。安心してお使いください。
+            </p>
+        </div>
+        
+        <h2>📌 アプリの楽しみ方</h2>
+        <p>このアプリは、毎日の体重を「まるで企業の価値（値動き）」のように見立てて、ゲーム感覚で楽しくチャート分析しながら健康的な体を目指す専用ツールです。</p>
+
+        <h2>📊 かんたん操作（体重の入力方法）</h2>
+        <ul>
+            <li>「65.3」とそのまま入力しても、「653」とドットを省いて入力しても、アプリが自動で「65.3kg」に整えて記録してくれます。</li>
+            <li>昨日測り忘れてしまった場合も、日時を過去に戻して入力すれば後からチャートに反映されます。</li>
+        </ul>
+
+        <h2>📉 チャートと専門用語のやさしい見方</h2>
+        <ul>
+            <li><span class="highlight">ローソク足（赤と緑の棒）:</span> その日の体重の動きです。前日より増えた日は<span style="color:#f23645; font-weight:bold;">赤（買い優勢）</span>、減った日は<span style="color:#08d158; font-weight:bold;">緑（売り優勢）</span>の棒が作られます。体重が減って緑の棒が増えるほど「ダイエットが順調」というサインです！</li>
+            <li><span class="highlight">2本の折れ線（MA7 / MA30）:</span> それぞれ「過去7日間」と「過去30日間」の体重の平均ラインです。日々の細かい増減に一喜一憂せず、この線が右下を向いているか（減少傾向か）を見るのがポイントです。</li>
+            <li><span class="highlight">緑色のゾーン（適正範囲）:</span> 医学的に健康的とされる「BMI 18.5 〜 25」の安全な体重エリアです。チャートがこの緑の帯の中に収まっていれば優秀です。</li>
+        </ul>
+
+        <h2>👤 適正値について</h2>
+        <p>「マーケットプロフィール設定」にあなたの身長を入力すると、一番病気になりにくく健康的とされる理想の体重（BMI 22）が自動で計算されます。この数値を目標（基準値）として、日々の値動きをコントロールしていきましょう。</p>
+
+        <h2>⚠️ 入力を間違えてしまったとき</h2>
+        <p>間違った数値を入力してしまった場合は、一番下にある「入力履歴」の横にある「削除」ボタンを押せば、いつでもその記録を消し去ることができます。</p>
+
+        <!-- メイン画面に戻るボタン -->
+        <button onclick="location.href='index.html'">📊 市場（メイン画面）へ戻る</button>
+    </div>
+
+</body>
+</html>
