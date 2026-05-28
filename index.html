@@ -28,23 +28,13 @@
         .fair-wp-value { font-size: 1.1rem; font-weight: bold; margin-top: 5px; line-height: 1.6; }
         .fair-wp-num { color: #2962ff; }
         
-        /* ４．入力履歴用（縦幅330pxをキープ） */
+        /* ４．入力履歴用 */
         .history-list { font-size: 0.85rem; max-height: 330px; overflow-y: auto; }
-        
-        /* 削除ボタンの縦幅肥大化を防ぐため、itemsを先頭上詰め（flex-start）に設定 */
         .history-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #2a2e39; }
-        
         .history-text { display: flex; flex-direction: column; gap: 4px; width: 85%; }
-        
-        /* 1行目の高さの基準をカッチリ合わせる */
         .history-row-top { display: flex; flex-direction: row; align-items: center; gap: 8px; line-height: 1.4; min-height: 24px; }
-        
-        /* 2行目のメモ領域 */
         .history-row-bottom { margin-top: 2px; line-height: 1.4; }
-        
         .history-memo { font-size: 0.8rem; color: #848e9c; background: #1e222d; padding: 2px 6px; border-radius: 4px; display: inline-block; max-width: 100%; word-break: break-all; }
-        
-        /* ボタンが常に1行分の高さ（32px）を維持するように設定 */
         .btn-delete { background: #f23645; color: white; padding: 0 10px; height: 32px; font-size: 0.75rem; border-radius: 4px; border: none; width: auto; margin: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .btn-delete:hover { background: #cf202f; }
         
@@ -241,7 +231,6 @@
                 [...rawHistory].reverse().forEach(item => {
                     var displayTime = item.dateTime.replace('T', ' ');
                     
-                    // 新・整形ルールに基づく完璧な割り振りの実行
                     var topRowContent = `<span>📅 ${displayTime}</span>`;
                     var bottomRowContent = '';
 
@@ -250,7 +239,6 @@
                     }
                     
                     if (item.memo) {
-                        // 体重の有無に関わらず、メモがある場合は必ず2行目に隔離配置
                         bottomRowContent = `<div class="history-row-bottom"><span class="history-memo">📝 ${item.memo}</span></div>`;
                     }
                     
@@ -327,24 +315,44 @@
                 grid: { borderColor: '#2a2e39' },
                 colors: ['#2962ff', '#ff9800', '#e91e63'],
                 plotOptions: { candlestick: { colors: { upward: '#f23645', downward: '#08d158' } } },
+                
+                /* 補助線のレイアウト・配色の最適化 */
                 annotations: {
                     yaxis: [
                         {
                             y: min,
                             y2: max,
                             fillColor: '#08d158',
-                            opacity: 0.06,
-                            label: { borderColor: '#08d158', style: { color: '#fff', background: '#08d158' }, text: '適正範囲 (BMI18.5-25)' }
+                            opacity: 0.12,
+                            borderColor: '#08d158',
+                            strokeDashArray: 3,
+                            width: '100%', // 確実にグラフ左端から右端まで全幅表示にする
+                            label: { 
+                                borderColor: '#08d158', 
+                                position: 'left',
+                                textAnchor: 'start',
+                                offsetX: 10,
+                                style: { color: '#fff', background: '#08d158', fontSize: '10px', fontWeight: 'bold' }, 
+                                text: '適正範囲 (BMI18.5-25)' 
+                            }
                         },
                         {
                             y: center,
-                            borderColor: '#2962ff',
-                            strokeDashArray: 4,
-                            label: { borderColor: '#2962ff', style: { color: '#fff', background: '#2962ff' }, text: '中心値 (BMI22)' }
+                            borderColor: '#2962ff', // 鮮やかなエレクトリックブルー
+                            strokeDashArray: 0,     // 0に設定して途切れのない「強固な実線」にする
+                            borderWidth: 3,         // 線の太さを3pxに強化し、重なっても隠れないように
+                            width: '100%',          // 確実に全幅表示にする
+                            label: { 
+                                borderColor: '#2962ff', 
+                                position: 'right',
+                                textAnchor: 'end',
+                                offsetX: -10,
+                                style: { color: '#fff', background: '#2962ff', fontSize: '10px', fontWeight: 'bold' }, 
+                                text: '中心値 (BMI22)' 
+                            }
                         }
                     ]
-                },
-                tooltip: { shared: true, custom: function({seriesIndex, dataPointIndex, w}) { return null; } }
+                }
             };
 
             if (chart) { chart.destroy(); }
