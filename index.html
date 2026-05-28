@@ -3,127 +3,306 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weight Chart</title>
+    <title>Weight Market</title>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <style>
-        body { font-family: sans-serif; padding: 15px; background: #f4f6f9; margin: 0; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; }
-        h2 { margin-top: 0; color: #333; font-size: 1.1rem; border-left: 4px solid #007aff; padding-left: 8px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.85rem; color: #555; }
-        input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
-        button { width: 100%; padding: 12px; background: #007aff; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; margin-bottom: 10px; }
-        .btn-danger { background: #ff3b30; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 15px; background: #0b0e14; color: #c5c7d0; margin: 0; }
+        .card { background: #131722; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); margin-bottom: 15px; border: 1px solid #2a2e39; }
+        h2 { margin-top: 0; color: #fff; font-size: 1.1rem; border-left: 4px solid #2962ff; padding-left: 8px; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 15px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.85rem; color: #848e9c; }
+        input, select { width: 100%; padding: 12px; box-sizing: border-box; background: #1e222d; border: 1px solid #434651; border-radius: 8px; font-size: 1rem; color: #fff; }
+        input:focus, select:focus { border-color: #2962ff; outline: none; }
+        button { width: 100%; padding: 12px; background: #2962ff; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; }
+        button:hover { background: #1e4bd6; }
+        .btn-secondary { background: #2a2e39; color: #b2b5be; margin-bottom: 15px; }
+        .btn-secondary:hover { background: #363c4e; }
+        
+        /* １．WEIGHT MARKET 概況用 */
+        .market-report { background: #1e222d; padding: 15px; border-radius: 8px; border-left: 4px solid #f0b90b; font-size: 0.9rem; line-height: 1.6; color: #eaecef; }
+        
+        /* 新設：Fair WP 表示エリア */
+        .fair-wp-display { background: #1e222d; padding: 12px; border-radius: 8px; border: 1px dashed #2962ff; font-size: 0.9rem; color: #fff; text-align: center; }
+        .fair-wp-value { font-size: 1.4rem; font-weight: bold; color: #2962ff; margin-top: 5px; }
+        
+        /* ４．約定履歴用 */
+        .history-list { font-size: 0.85rem; max-height: 180px; overflow-y: auto; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #2a2e39; }
+        .btn-delete { background: #f23645; color: white; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; border: none; width: auto; margin: 0; }
+        .btn-delete:hover { background: #cf202f; }
+        
+        /* ステータス表示 */
+        .status-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: #2a2e39; color: #989898; }
+        .status-fair { background: rgba(8, 209, 88, 0.2); color: #08d158; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2>📊 今日の体重を入力</h2>
-        <div class="grid">
-            <div>
-                <label>日付</label>
-                <input type="date" id="weightDate">
-            </div>
-            <div>
-                <label>朝の体重 (始値)</label>
-                <input type="number" id="openW" step="0.1" value="65.0">
-            </div>
-            <div>
-                <label>昼の最高 (高値)</label>
-                <input type="number" id="highW" step="0.1" value="65.5">
-            </div>
-            <div>
-                <label>夜の最軽量 (安値)</label>
-                <input type="number" id="lowW" step="0.1" value="64.5">
-            </div>
-            <div style="grid-column: span 2;">
-                <label>夜の就寝前 (終値)</label>
-                <input type="number" id="closeW" step="0.1" value="64.8">
-            </div>
-        </div>
-        <button onclick="saveData()">データを保存してチャート更新</button>
-        <button onclick="clearData()" class="btn-danger">全データを削除</button>
+        <h2>📢 WEIGHT MARKET 概況</h2>
+        <div id="marketReport" class="market-report">データが不足しています。市場にアクセスしてWeight Priceを記録してください。</div>
     </div>
 
     <div class="card">
-        <h2>📉 ダイエット・ローソク足チャート</h2>
+        <h2>📉 板チャート (Candlestick + MA)</h2>
         <div id="chart"></div>
     </div>
 
+    <div class="card">
+        <h2>📊 Weight Priceを入力</h2>
+        <div class="grid">
+            <div>
+                <label>日時</label>
+                <input type="datetime-local" id="marketDateTime">
+            </div>
+            <div>
+                <label>Weight Price (例: 65.3kgなら 653 と入力)</label>
+                <input type="number" id="weightPrice" pattern="\d*" placeholder="653">
+            </div>
+        </div>
+        <button onclick="savePrice()">入力</button>
+    </div>
+
+    <div class="card">
+        <h2>👤 マーケットプロフィール設定</h2>
+        <div class="grid-2">
+            <div>
+                <label>身長 (cm)</label>
+                <input type="number" id="userHeight" placeholder="170" value="170">
+            </div>
+            <div>
+                <label>性別</label>
+                <select id="userGender">
+                    <option value="male">男性 (Male)</option>
+                    <option value="female">女性 (Female)</option>
+                </select>
+            </div>
+        </div>
+        <button onclick="saveProfile()" class="btn-secondary">プロフィールを保存</button>
+        
+        <div class="fair-wp-display">
+            <div>現在のインフラ情報から算出された適正価格</div>
+            <div class="fair-wp-value" id="fairWpTarget">--- WP</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>📝 約定履歴（データの個別損切り）</h2>
+        <div id="historyList" class="history-list">履歴がありません</div>
+    </div>
+
     <script>
-        // 本日の日付を自動セット
-        document.getElementById('weightDate').value = new Date().toISOString().substring(0, 10);
+        var chart = null;
 
-        // チャートの初期設定
-        var options = {
-            series: [{ data: [] }],
-            chart: { type: 'candlestick', height: 350, toolbar: { show: false } },
-            xaxis: { type: 'category' },
-            yaxis: { tooltip: { enabled: true } },
-            plotOptions: { candlestick: { colors: { upward: '#ff3b30', downward: '#34c759' } } } // 陽線=赤、陰線=緑（減少）
-        };
+        function setNowDateTime() {
+            var now = new Date();
+            var offset = now.getTimezoneOffset() * 60000;
+            var localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+            document.getElementById('marketDateTime').value = localISOTime;
+        }
+        setNowDateTime();
 
-        var chart = new ApexCharts(document.querySelector("#chart"), options);
-        chart.render();
-
-        // ページを開いた時に自動でデータを読み込む
-        window.onload = function() {
-            loadChart();
-        };
-
-        // データを保存する関数
-        function saveData() {
-            var date = document.getElementById('weightDate').value;
-            var o = parseFloat(document.getElementById('openW').value);
-            var h = parseFloat(document.getElementById('highW').value);
-            var l = parseFloat(document.getElementById('lowW').value);
-            var c = parseFloat(document.getElementById('closeW').value);
-
-            // 既存のデータを取得、なければ空の配列
-            var historyData = JSON.parse(localStorage.getItem('dietCandleData')) || [];
-
-            // 同じ日付のデータがあれば上書き、なければ新規追加
-            var existingIndex = historyData.findIndex(item => item.date === date);
-            var newData = { date: date, open: o, high: h, low: l, close: c };
-
-            if (existingIndex > -1) {
-                historyData[existingIndex] = newData;
-            } else {
-                historyData.push(newData);
-            }
-
-            // 日付順に並び替え
-            historyData.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            // スマホ（ブラウザ）に保存
-            localStorage.setItem('dietCandleData', JSON.stringify(historyData));
-
-            alert('データを保存しました！');
-            loadChart();
+        function loadProfile() {
+            var profile = JSON.parse(localStorage.getItem('weightMarketProfile')) || { height: 170, gender: 'male' };
+            document.getElementById('userHeight').value = profile.height;
+            document.getElementById('userGender').value = profile.gender;
         }
 
-        // チャートを描画する関数
-        function loadChart() {
-            var historyData = JSON.parse(localStorage.getItem('dietCandleData')) || [];
-            
-            // ApexCharts用のデータ形式に変換
-            var chartData = historyData.map(function(item) {
-                return {
-                    x: item.date,
-                    y: [item.open, item.high, item.low, item.close]
-                };
+        function saveProfile() {
+            var h = parseFloat(document.getElementById('userHeight').value);
+            var g = document.getElementById('userGender').value;
+            if (isNaN(h) || h <= 0) {
+                alert('正しい身長を入力してください');
+                return;
+            }
+            localStorage.setItem('weightMarketProfile', JSON.stringify({ height: h, gender: g }));
+            alert('プロフィールを保存しました。フェアトレード基準を再計算します。');
+            loadMarketData();
+        }
+
+        window.onload = function() {
+            loadProfile();
+            loadMarketData();
+        };
+
+        function savePrice() {
+            var dateTimeStr = document.getElementById('marketDateTime').value;
+            var wp = parseInt(document.getElementById('weightPrice').value);
+
+            if (!dateTimeStr || isNaN(wp)) {
+                alert('Weight Priceを正確に入力してください');
+                return;
+            }
+
+            var rawHistory = JSON.parse(localStorage.getItem('weightMarketRawData')) || [];
+            rawHistory.push({ id: new Date(dateTimeStr).getTime(), dateTime: dateTimeStr, wp: wp });
+            rawHistory.sort((a, b) => a.id - b.id);
+            localStorage.setItem('weightMarketRawData', JSON.stringify(rawHistory));
+
+            alert('Weight Priceをフィックスしました。');
+            document.getElementById('weightPrice').value = '';
+            setNowDateTime();
+            loadMarketData();
+        }
+
+        function deletePrice(id) {
+            if (confirm('この注文を取り消しますか？（損切り）')) {
+                var rawHistory = JSON.parse(localStorage.getItem('weightMarketRawData')) || [];
+                var filtered = rawHistory.filter(item => item.id !== id);
+                localStorage.setItem('weightMarketRawData', JSON.stringify(filtered));
+                loadMarketData();
+            }
+        }
+
+        function loadMarketData() {
+            var rawHistory = JSON.parse(localStorage.getItem('weightMarketRawData')) || [];
+            var profile = JSON.parse(localStorage.getItem('weightMarketProfile')) || { height: 170, gender: 'male' };
+            var heightM = profile.height / 100;
+
+            // BMI 22に基づく Fair WP (適正価格) の演算
+            var fairCenterWP = Math.round((22 * heightM * heightM) * 10);
+            var fairMinWP = Math.round((18.5 * heightM * heightM) * 10);
+            var fairMaxWP = Math.round((25 * heightM * heightM) * 10);
+
+            // プロフィール画面の Fair WP 表示を更新
+            document.getElementById('fairWpTarget').innerHTML = `Fair WP: ${fairCenterWP} WP <span style="font-size:0.8rem; color:#848e9c;">(${fairMinWP} 〜 ${fairMaxWP})</span>`;
+
+            var historyListDiv = document.getElementById('historyList');
+            if (rawHistory.length === 0) {
+                historyListDiv.innerHTML = '履歴がありません';
+            } else {
+                var html = '';
+                [...rawHistory].reverse().forEach(item => {
+                    var displayTime = item.dateTime.replace('T', ' ');
+                    html += `<div class="history-item">
+                        <span>📅 ${displayTime} ➡️ <strong>${item.wp} WP</strong></span>
+                        <button class="btn-delete" onclick="deletePrice(${item.id})">削除</button>
+                    </div>`;
+                });
+                historyListDiv.innerHTML = html;
+            }
+
+            var dailyGroups = {};
+            rawHistory.forEach(item => {
+                var date = item.dateTime.substring(0, 10);
+                if (!dailyGroups[date]) dailyGroups[date] = [];
+                dailyGroups[date].push(item);
             });
 
-            chart.updateSeries([{ data: chartData }]);
+            var candleData = [];
+            var dates = [];
+            for (var date in dailyGroups) {
+                dates.push(date);
+                var items = dailyGroups[date];
+                var openW = items[0].wp;
+                var closeW = items[items.length - 1].wp;
+                var wValues = items.map(i => i.wp);
+                var highW = Math.max(...wValues);
+                var lowW = Math.min(...wValues);
+                candleData.push({ x: date, y: [openW, highW, lowW, closeW] });
+            }
+
+            var ma7Data = [];
+            var ma30Data = [];
+            var dayCount = candleData.length;
+
+            for (var i = 0; i < dayCount; i++) {
+                if (i >= 6) {
+                    var sum7 = 0;
+                    for (var j = i - 6; j <= i; j++) sum7 += candleData[j].y[3];
+                    ma7Data.push({ x: candleData[i].x, y: Math.round(sum7 / 7) });
+                } else {
+                    ma7Data.push({ x: candleData[i].x, y: null });
+                }
+
+                if (i >= 29) {
+                    var sum30 = 0;
+                    for (var j = i - 29; j <= i; j++) sum30 += candleData[j].y[3];
+                    ma30Data.push({ x: candleData[i].x, y: Math.round(sum30 / 30) });
+                } else {
+                    ma30Data.push({ x: candleData[i].x, y: null });
+                }
+            }
+
+            updateChartDisplay(candleData, ma7Data, ma30Data, fairCenterWP, fairMinWP, fairMaxWP);
+            generateMarketReport(dailyGroups, dates[dates.length - 1], heightM);
         }
 
-        // データを全削除する関数
-        function clearData() {
-            if (confirm('これまでの記録をすべて削除しますか？')) {
-                localStorage.removeItem('dietCandleData');
-                loadChart();
+        function updateChartDisplay(candle, ma7, ma30, center, min, max) {
+            var chartOptions = {
+                series: [
+                    { name: '板チャート(WP)', type: 'candlestick', data: candle },
+                    { name: '7日移動平均線(MA7)', type: 'line', data: ma7 },
+                    { name: '30日移動平均線(MA30)', type: 'line', data: ma30 }
+                ],
+                chart: { type: 'line', height: 350, toolbar: { show: false }, background: '#131722', foreColor: '#848e9c' },
+                stroke: { width: [1, 2, 2], curve: 'smooth' },
+                xaxis: { type: 'category' },
+                grid: { borderColor: '#2a2e39' },
+                colors: ['#2962ff', '#ff9800', '#e91e63'],
+                plotOptions: { candlestick: { colors: { upward: '#f23645', downward: '#08d158' } } },
+                annotations: {
+                    yaxis: [
+                        {
+                            y: min,
+                            y2: max,
+                            fillColor: '#08d158',
+                            opacity: 0.06,
+                            label: { borderColor: '#08d158', style: { color: '#fff', background: '#08d158' }, text: 'フェアトレード範囲 (BMI18.5-25)' }
+                        },
+                        {
+                            y: center,
+                            borderColor: '#2962ff',
+                            strokeDashArray: 4,
+                            label: { borderColor: '#2962ff', style: { color: '#fff', background: '#2962ff' }, text: '中心値 (BMI22)' }
+                        }
+                    ]
+                },
+                tooltip: { shared: true, custom: function({seriesIndex, dataPointIndex, w}) { return null; } }
+            };
+
+            if (chart) { chart.destroy(); }
+            chart = new ApexCharts(document.querySelector("#chart"), chartOptions);
+            chart.render();
+        }
+
+        function generateMarketReport(dailyGroups, lastDate, heightM) {
+            var reportDiv = document.getElementById('marketReport');
+            if (!lastDate || !dailyGroups[lastDate]) {
+                reportDiv.innerHTML = '十分な市場データがありません。Weight Priceを入力してください。';
+                return;
             }
+
+            var currentDayItems = dailyGroups[lastDate];
+            var latestData = currentDayItems[currentDayItems.length - 1];
+            var currentWP = latestData.wp;
+            
+            var actualKg = currentWP / 10;
+            var currentBMI = actualKg / (heightM * heightM);
+            
+            var isFairTrade = (currentBMI >= 18.5 && currentBMI < 25);
+            var fairStatusHtml = isFairTrade ? 
+                `<span class="status-badge status-fair">適正価格（Fair Trade / BMI: ${currentBMI.toFixed(1)}）</span>` : 
+                `<span class="status-badge">要調整（アンダー / オーバーバリュー / BMI: ${currentBMI.toFixed(1)}）</span>`;
+
+            var comment = "";
+            if (currentDayItems.length >= 2) {
+                var dayOpen = currentDayItems[0].wp;
+                var diff = currentWP - dayOpen;
+                
+                if (diff > 5) {
+                    comment = `本日、市場には強い買い圧力が観測され、Weight Priceは急反発を見せています。レジスタンスライン（抵抗線）を力強く上抜けた可能性があり、現在のBMIは ${currentBMI.toFixed(1)} まで急伸。短期的にはオシレーター系インジケーターにおいて「買われすぎ」のサインが点灯中であり、移動平均線からの乖離を修正する押し目形成（調整下落）を待つ地合いです。`;
+                } else if (diff < -5) {
+                    comment = `本日の地合いは売り優勢。強烈な陰線を形成しており、サポートラインの下抜けを試す展開です。市場の「売り仕掛け」が機能しており、現在のBMIは ${currentBMI.toFixed(1)} へと低下。フェアトレードの中心値（BMI22）に向けてマイルドに収束していく、見事な下落トレンドとなっています。`;
+                } else {
+                    comment = `現在のレンジ相場は維持されており、売り手と買い手のパワーが拮抗。BMI ${currentBMI.toFixed(1)} 近辺で方向感を欠いたままもみ合い（スクィーズ）の状態が続いています。移動平均線も収束しつつあり、次なるブレイクアウトの契機を伺う形です。`;
+                }
+            } else {
+                comment = `現在、Weight Priceは ${currentWP} WP 付近での取引となっています。市場は企業のファンダメンタルズ（現在の確定BMI: ${currentBMI.toFixed(1)}）を織り込みつつ、短期・長期の移動平均線が交差するテクニカル的な地固めを行っている展開です。`;
+            }
+
+            reportDiv.innerHTML = `<strong>現在の価格: ${currentWP} WP</strong> ｜ ${fairStatusHtml}<br><br>${comment}`;
         }
     </script>
 </body>
