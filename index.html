@@ -28,12 +28,24 @@
         .fair-wp-value { font-size: 1.1rem; font-weight: bold; margin-top: 5px; line-height: 1.6; }
         .fair-wp-num { color: #2962ff; }
         
-        /* ４．入力履歴用（ご指定通り高さを1.5倍の330pxに拡大） */
+        /* ４．入力履歴用（縦幅330pxをキープ） */
         .history-list { font-size: 0.85rem; max-height: 330px; overflow-y: auto; }
-        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #2a2e39; }
-        .history-text { display: flex; flex-direction: row; align-items: center; gap: 8px; width: 85%; flex-wrap: wrap; }
-        .history-memo { font-size: 0.8rem; color: #848e9c; background: #1e222d; padding: 2px 6px; border-radius: 4px; max-width: 100%; word-break: break-all; }
-        .btn-delete { background: #f23645; color: white; padding: 6px 10px; font-size: 0.75rem; border-radius: 4px; border: none; width: auto; margin: 0; }
+        
+        /* 削除ボタンの縦幅肥大化を防ぐため、itemsを先頭上詰め（flex-start）に設定 */
+        .history-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #2a2e39; }
+        
+        .history-text { display: flex; flex-direction: column; gap: 4px; width: 85%; }
+        
+        /* 1行目の高さの基準をカッチリ合わせる */
+        .history-row-top { display: flex; flex-direction: row; align-items: center; gap: 8px; line-height: 1.4; min-height: 24px; }
+        
+        /* 2行目のメモ領域 */
+        .history-row-bottom { margin-top: 2px; line-height: 1.4; }
+        
+        .history-memo { font-size: 0.8rem; color: #848e9c; background: #1e222d; padding: 2px 6px; border-radius: 4px; display: inline-block; max-width: 100%; word-break: break-all; }
+        
+        /* ボタンが常に1行分の高さ（32px）を維持するように設定 */
+        .btn-delete { background: #f23645; color: white; padding: 0 10px; height: 32px; font-size: 0.75rem; border-radius: 4px; border: none; width: auto; margin: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .btn-delete:hover { background: #cf202f; }
         
         /* ステータス表示 */
@@ -68,7 +80,7 @@
             </div>
             <div>
                 <label>memo (行動ログ・メモ) ※空欄可</label>
-                <input type="text" id="weightMemo" placeholder="例: 食べすぎ、運動後、半身浴など">
+                <input type="text" id="weightMemo" placeholder="例: 食事後、トイレ後、入浴後など">
             </div>
         </div>
         <button onclick="savePrice()">入力</button>
@@ -229,14 +241,23 @@
                 [...rawHistory].reverse().forEach(item => {
                     var displayTime = item.dateTime.replace('T', ' ');
                     
-                    // 体重がない場合は空欄（非表示）にし、メモだけを右隣に綺麗に並べるロジック
-                    var weightDisplay = item.wp !== null ? `➡️ <strong>${item.wp.toFixed(1)}kg</strong>` : '';
-                    var memoHtml = item.memo ? `<span class="history-memo">📝 ${item.memo}</span>` : '';
+                    // 新・整形ルールに基づく完璧な割り振りの実行
+                    var topRowContent = `<span>📅 ${displayTime}</span>`;
+                    var bottomRowContent = '';
+
+                    if (item.wp !== null) {
+                        topRowContent += ` ➡️ <strong>${item.wp.toFixed(1)}kg</strong>`;
+                    }
+                    
+                    if (item.memo) {
+                        // 体重の有無に関わらず、メモがある場合は必ず2行目に隔離配置
+                        bottomRowContent = `<div class="history-row-bottom"><span class="history-memo">📝 ${item.memo}</span></div>`;
+                    }
                     
                     html += `<div class="history-item">
                         <div class="history-text">
-                            <span>📅 ${displayTime} ${weightDisplay}</span>
-                            ${memoHtml}
+                            <div class="history-row-top">${topRowContent}</div>
+                            ${bottomRowContent}
                         </div>
                         <button class="btn-delete" onclick="deletePrice(${item.id})">削除</button>
                     </div>`;
