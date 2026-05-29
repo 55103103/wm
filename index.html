@@ -84,7 +84,7 @@
             background: #363c4e;
         }
         
-        /* １．YOUR WEIGHT MARKET 概況用 */
+        /* YOUR WEIGHT MARKET 概況用 */
         .market-report {
             font-size: 0.9rem;
             line-height: 1.6;
@@ -114,7 +114,7 @@
             color: #2962ff;
         }
         
-        /* ４．入力履歴用 */
+        /* 入力履歴用 */
         .history-list {
             font-size: 0.85rem;
             max-height: 330px;
@@ -199,14 +199,14 @@
         </a>
     </div>
 
-    <div class="card">
+    <div class="card" id="topMarketCard">
         <h2>📢 YOUR WEIGHT MARKET 概況</h2>
         <div id="marketBadgeArea"></div>
         <div id="marketReport" class="market-report">データが不足しています。市場にアクセスしてWeightを記録してください。</div>
     </div>
 
     <div class="card">
-        <h2>📊 Weightを入力</h2>
+        <h2>📊 Dataを入力</h2>
         <div class="grid">
             <div>
                 <label>日時</label>
@@ -288,16 +288,16 @@
                 return;
             }
             localStorage.setItem('weightMarketProfile', JSON.stringify({ height: h, gender: g }));
-            showToast('プロフィールを保存しました。適正値を再計算します。');
-            loadMarketData();
+            showToast('Data updated');
+            loadMarketData(true);
         }
 
         window.onload = function() {
             loadProfile();
-            loadMarketData();
+            loadMarketData(true);
         };
 
-        // Weightデータの保存
+        // Data（Weight/Memo）の保存
         function savePrice() {
             var dateTimeStr = document.getElementById('marketDateTime').value;
             var inputVal = parseFloat(document.getElementById('weightPrice').value);
@@ -308,13 +308,25 @@
                 return;
             }
 
+            // バリデーション: 体重もメモも両方とも空欄（または無効値）の場合はエラーを出す
+            var isWeightEmpty = isNaN(inputVal) || inputVal <= 0;
+            var isMemoEmpty = memoVal === "";
+
+            if (isWeightEmpty && isMemoEmpty) {
+                showToast('エラー: Weightまたはmemoのどちらかを入力してください');
+                return;
+            }
+
             var finalWeight = null;
-            if (!isNaN(inputVal) && inputVal > 0) {
+            var hasWeightInput = false;
+            
+            if (!isWeightEmpty) {
                 finalWeight = inputVal;
                 if (inputVal >= 100) {
                     finalWeight = inputVal / 10;
                 }
                 finalWeight = Math.round(finalWeight * 10) / 10;
+                hasWeightInput = true;
             }
 
             var rawHistory = JSON.parse(localStorage.getItem('weightMarketRawData')) || [];
@@ -338,77 +350,28 @@
             rawHistory.sort((a, b) => a.id - b.id);
             localStorage.setItem('weightMarketRawData', JSON.stringify(rawHistory));
 
-            showToast('Weightを入力しました。');
+            showToast('Data updated');
             
             document.getElementById('weightPrice').value = '';
             document.getElementById('weightMemo').value = '';
             setNowDateTime();
-            loadMarketData();
-        }
-
-        // 大きくなったスマートトースト通知の生成ロジック
-        function showToast(message) {
-            var oldToast = document.getElementById("customToast");
-            if (oldToast) { oldToast.remove(); }
-
-            var toast = document.createElement("div");
-            toast.id = "customToast";
             
-            toast.style.cssText = `
-                position: fixed;
-                top: 40%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: rgba(19, 23, 34, 0.98);
-                color: #fff;
-                padding: 60px 80px;
-                border-radius: 16px;
-                font-size: 2.2rem;
-                font-family: sans-serif;
-                font-weight: bold;
-                letter-spacing: 2px;
-                box-shadow: 0 12px 40px rgba(0,0,0,0.7);
-                z-index: 9999;
-                transition: opacity 0.2s ease, transform 0.2s ease;
-                opacity: 0;
-                cursor: pointer;
-                border: 2px solid #2962ff;
-                min-width: 280px;
-                text-align: center;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            `;
-            toast.innerText = message;
-            document.body.appendChild(toast);
+            // 体重入力があった場合のみレポートを更新
+            loadMarketData(hasWeightInput);
 
-            setTimeout(function() { 
-                toast.style.opacity = "1"; 
-                toast.style.transform = "translate(-50%, -50%) scale(1)";
-            }, 10);
-
-            var removeToast = function() {
-                toast.style.opacity = "0";
-                toast.style.transform = "translate(-50%, -50%) scale(0.95)";
-                setTimeout(function() { toast.remove(); }, 200);
-            };
-
-            toast.addEventListener("click", removeToast);
-            setTimeout(removeToast, 3000);
+            document.getElementById('topMarketCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        // データの削除
         function deletePrice(id) {
             if (confirm('この注文を取り消しますか？')) {
                 var rawHistory = JSON.parse(localStorage.getItem('weightMarketRawData')) || [];
                 var filtered = rawHistory.filter(item => item.id !== id);
                 localStorage.setItem('weightMarketRawData', JSON.stringify(filtered));
-                loadMarketData();
+                loadMarketData(true);
             }
         }
 
-        // 市場データの読み込みと計算処理
-        function loadMarketData() {
+        function loadMarketData(shouldUpdateReport) {
             var rawHistory = JSON.parse(localStorage.getItem('weightMarketRawData')) || [];
             var profile = JSON.parse(localStorage.getItem('weightMarketProfile')) || { height: 170, gender: 'male' };
             var heightM = profile.height / 100;
@@ -436,18 +399,17 @@
                 var html = '';
                 [...rawHistory].reverse().forEach(item => {
                     var displayTime = item.dateTime.replace('T', ' ');
-                    
                     var topRowContent = `<span>📅 ${displayTime}</span>`;
                     var bottomRowContent = '';
 
                     if (item.wp !== null) {
                         topRowContent += ` ➡️ <strong>${item.wp.toFixed(1)}kg</strong>`;
                     } else {
-                        topRowContent += ` ➡️ <span style="color:#848e9c;">(株価の計測はお休み・メモのみ)</span>`;
+                        topRowContent += ` ➡️ <strong>--kg</strong>`;
                     }
                     
                     if (item.memo) {
-                        bottomRowContent = `<div class="history-row-bottom"><span class="history-memo">📝 ${item.memo}</span></div>`;
+                        bottomRowContent = `<div class="history-row-bottom" style="padding-left: 0; margin-left: 0;"><span class="history-memo">📝 ${item.memo}</span></div>`;
                     }
                     
                     html += `<div class="history-item">
@@ -506,7 +468,10 @@
             }
 
             updateChartDisplay(candleData, ma7Data, ma30Data, fairCenterKg, fairMinKg, fairMaxKg);
-            generateMarketReportAdvanced(rawHistory, candleData, ma7Data, ma30Data, heightM, fairCenterKg);
+            
+            if (shouldUpdateReport) {
+                generateMarketReportAdvanced(validWeightHistory, candleData, ma7Data, ma30Data, heightM, fairCenterKg, fairMinKg, fairMaxKg);
+            }
         }
 
         // チャートのレンダリング
@@ -544,9 +509,9 @@
 
             var chartOptions = {
                 series: [
-                    { name: 'チャート', type: 'candlestick', data: candle },
-                    { name: '7日移動平均線(MA7)', type: 'line', data: ma7 },
-                    { name: '30日移動平均線(MA30)', type: 'line', data: ma30 },
+                    { name: '価格推移', type: 'candlestick', data: candle },
+                    { name: '短期トレンド(MA7)', type: 'line', data: ma7 },
+                    { name: '長期トレンド(MA30)', type: 'line', data: ma30 },
                     { name: '中心値 (BMI22)', type: 'line', data: [] },
                     { name: '適正範囲 (BMI18.5-25)', type: 'line', data: [] }
                 ],
@@ -622,108 +587,150 @@
             chart.render();
         }
 
-        // 初心者向けの株価ニュース風にリファクタリングされた市場概況レポート生成エンジン
-        function generateMarketReportAdvanced(rawHistory, candleData, ma7Data, ma30Data, heightM, fairCenterKg) {
+        // トースト通知の仕組み
+        function showToast(message) {
+            var oldToast = document.getElementById("customToast");
+            if (oldToast) { oldToast.remove(); }
+
+            var toast = document.createElement("div");
+            toast.id = "customToast";
+            
+            toast.style.cssText = `
+                position: fixed;
+                top: 40%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(19, 23, 34, 0.98);
+                color: #fff;
+                padding: 60px 80px;
+                border-radius: 16px;
+                font-size: 2.2rem;
+                font-family: sans-serif;
+                font-weight: bold;
+                letter-spacing: 2px;
+                box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+                z-index: 9999;
+                transition: opacity 0.2s ease, transform 0.2s ease;
+                opacity: 0;
+                cursor: pointer;
+                border: 2px solid #2962ff;
+                min-width: 280px;
+                text-align: center;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+            toast.innerText = message;
+            document.body.appendChild(toast);
+
+            setTimeout(function() { 
+                toast.style.opacity = "1"; 
+                toast.style.transform = "translate(-50%, -50%) scale(1)";
+            }, 10);
+
+            var removeToast = function() {
+                toast.style.opacity = "0";
+                toast.style.transform = "translate(-50%, -50%) scale(0.95)";
+                setTimeout(function() { toast.remove(); }, 200);
+            };
+
+            toast.addEventListener("click", removeToast);
+            setTimeout(removeToast, 3000);
+        }
+
+        // レポートエンジン
+        function generateMarketReportAdvanced(validWeightHistory, candleData, ma7Data, ma30Data, heightM, fairCenterKg, fairMinKg, fairMaxKg) {
             var reportDiv = document.getElementById('marketReport');
             var badgeDiv = document.getElementById('marketBadgeArea');
             
-            if (rawHistory.length === 0) {
+            if (validWeightHistory.length === 0) {
                 badgeDiv.innerHTML = '';
                 reportDiv.innerHTML = 'データが不足しています。市場にアクセスしてWeightを記録してください。';
                 return;
             }
 
-            // 直近の入力を取得
-            var lastInput = rawHistory[rawHistory.length - 1];
-            
-            // --- パターン1: メモのみの入力（株価変動なし・企業ニュース発表風） ---
-            if (lastInput.wp === null) {
-                var memoReports = [
-                    `【新着ニュース】本日は体重の計測（株価チェック）はお休みですが、重要な企業活動（メモ:「${lastInput.memo || 'イベント'}」）が報告されました！価格に動きはありませんが、この日々の活動報告は、次回の測定日にプラスまたはマイナスの影響となって遅れて現れてくる見通しです。`,
-                    `【材料発表】取引所に「${lastInput.memo || 'イベント'}」という新しいお知らせが届きました。今日の株価（Weight）への直接の影響はまだ見えませんが、ユーザーの健康意識（取引の熱気）は高まっています。次の計測結果でのサプライズ発表が期待されます。`,
-                    `【水面下の動き】株価の更新はありませんでしたが、裏では「${lastInput.memo || 'イベント'}」という構造改革が実行されました。見た目の数値は変わりませんが、明日の相場（次回の体重）にどう響いてくるのか、ファンの間で注目が集まっています。`
-                ];
-                badgeDiv.innerHTML = `<span class="status-badge">メモ情報開示（数値は未計測）</span>`;
-                reportDiv.innerHTML = memoReports[Math.floor(Math.random() * memoReports.length)];
-                return;
-            }
-
-            // 直近の有効な体重データからBMI算出
+            var lastInput = validWeightHistory[validWeightHistory.length - 1];
             var currentKg = lastInput.wp;
             var currentBMI = currentKg / (heightM * heightM);
             var isFairTrade = (currentBMI >= 18.5 && currentBMI < 25);
             
             badgeDiv.innerHTML = isFairTrade ? 
-                `<span class="status-badge status-fair">適正株価（安心の優良銘柄 / BMI: ${currentBMI.toFixed(1)}）</span>` : 
-                `<span class="status-badge">値動き要調整（バーゲンセール or 高値警戒 / BMI: ${currentBMI.toFixed(1)}）</span>`;
+                `<span class="status-badge status-fair">プライム市場（適正範囲内での極めて安定した推移）</span>` : 
+                `<span class="status-badge">要調整局面（適正レンジへの巡航速度でのアプローチを推奨）</span>`;
 
             var len = candleData.length;
             var dayDiff = 0;
             if (len > 0) {
-                var c = candleData[len - 1].y; // [open, high, low, close]
+                var c = candleData[len - 1].y; 
                 dayDiff = c[3] - c[0];
             }
 
-            // レポートパールの準備
             var pool = [];
 
-            // --- パターン2: 爆発的暴騰 (当日+1.0kg以上) ---
+            // 急激な価格高騰 (当日+1.0kg以上)
             if (dayDiff >= 1.0) {
                 pool.push(
-                    `【臨時ニュース：急上昇！】本日の市場は、買い注文が一気に殺到する歴史的な『大暴騰（一時的な食べすぎ・水分補給）』を記録しました！売り方（減量派）もビックリの勢いで、上値の壁を一気に突き抜けています。少し「買われすぎ（過熱気味）」のサインが出ていますので、明日は落ち着いた値動き（調整）を期待したいところです。`,
-                    `【ストップ高寸前！】突如として強力な買い（美味しい食事など）が入り、チャートには巨大な右上がりの線が出現しました。ボランティア（お腹の満足度）は満点ですが、テクニカル的には少しスピード違反の急上昇です。明日以降、マイルドに落ち着くかどうかが焦点となります。`
+                    `【臨時ニュース：ボラティリティ急上昇】本日の市場は、短期的な要因により価格が大きく上振れる「急激な高値乱高下」を記録しました。当相場では、こうした一時的な急騰はスピード違反と見なされやすく、機関投資家からは冷ややかな目線が送られます。明日は取引が沈静化し、元の巡航軌道へ戻るかどうかが焦点です。`,
+                    `【急な値動きに警戒】一時的な需給の偏り（インフロー）により、チャートが急角度で上振れました。ただ、この市場が最も評価するのは「安定維持」です。明日の取引では、この乱高下の波をいかに素早く吸収し、穏やかなレンジに戻せるかが試されます。`
                 );
             }
 
-            // --- パターン3: 歴史的暴落 (当日-1.0kg以下) ---
+            // 急激な価格急落 (当日-1.0kg以下)
             if (dayDiff <= -1.0) {
                 pool.push(
-                    `【臨時ニュース：お見事な急落！】市場で一斉に売りボタンが押され、気持ちのいい『大暴落（猛烈なデトックス・大減量）』を演じました！これまでのサポートライン（体重の壁）を次々と下回る嬉しい底割れです。市場には「売られすぎ（スッキリ）」のシグナルが出ており、非常に身軽な展開となっています。`,
-                    `【全面安のバーゲンセール！】徹底的な売り崩し（運動や節制の成果）により、株価（Weight）が大幅にダウンしました。これまでの上昇分を吹き飛ばすほどの勢いですが、減量派にとっては待ちに待った歓喜の瞬間。非常に健全なリフレッシュ相場が進行中です。`
+                    `【臨時ニュース：急激な下落を検知】本日、価格が下方に大きく乖離する荒れた値動きとなりました。一見すると身軽に見えますが、計画性のない急落は市場の信頼性を損なうため、歓迎されません。無理のない「軟着陸（ソフトランディング）」に向けて、ここからは下値を固める丁寧な値動きが求められます。`,
+                    `【下振れリスクの発生】大幅な価格調整が1日で発生しました。当市場の基本理念である「ゆるやかな維持」の観点からは、少し突発的すぎるサインです。明日以降は売り一巡感から、フラットでブレのない底堅い推移への移行が期待されます。`
                 );
             }
 
-            // 長期データがある場合
             if (len >= 2 && ma7Data[len - 1] && ma7Data[len - 2]) {
                 var curMa7 = ma7Data[len - 1].y;
                 var preMa7 = ma7Data[len - 2].y;
                 var curMa30 = ma30Data[len - 1] ? ma30Data[len - 1].y : null;
                 var preMa30 = ma30Data[len - 2] ? ma30Data[len - 2].y : null;
 
-                // --- パターン4: ゴールデンクロス（初心者向け解説付き） ---
+                var isApproachingCenter = false;
+                if (len >= 3) {
+                    var prevWp = candleData[len - 2].y[3];
+                    var distPrev = Math.abs(prevWp - fairCenterKg);
+                    var distCur = Math.abs(currentKg - fairCenterKg);
+                    if (distCur < distPrev && Math.abs(dayDiff) > 0 && Math.abs(dayDiff) < 1.0) {
+                        isApproachingCenter = true;
+                    }
+                }
+
+                // ゆるやかな適正値へのアプローチ
+                if (isApproachingCenter) {
+                    pool.push(
+                        `【最優秀アプローチ】現在、極めて計画的かつ理想的な「適正価格（フェアトレード領域）への軟着陸（ソフトランディング）」が進行しています。市場参加者のコンセンサスを得た、無理のない確かな足取りであり、この抜群のガバナンス意識は格付け機関からも高く評価されています。`,
+                        `【理想的な巡航速度】急激な乱高下を徹底的に排除し、じわじわと、かつ着実に中心値へと歩幅を合わせています。チャートの歪みをゆっくりと修正していくこのプロセスこそ、当市場における最も美しいトレンドモデルです。`
+                    );
+                }
+
+                // 長期適正範囲内のキープ
+                if (isFairTrade && Math.abs(dayDiff) <= 0.3) {
+                    pool.push(
+                        `【ディフェンシブの極み】本日も価格のブレを最小限に抑え、盤石の「適正範囲内での長期継続」を維持しています。外部の雑音に惑わされないこの圧倒的なディフェンシブ性は、長期投資家にとって至高の安心感。これぞ市場の模範となる超優良銘柄の立ち振る舞いです。`,
+                        `【ガバナンス最高評価】適正レンジのど真ん中で、まるで時計の針のように正確で揺るぎないフラット推移をキープ。激しい演出を嫌い、持続可能性のみを追求するその一貫した相場運営は、最高の信頼を勝ち得ています。`
+                    );
+                }
+
+                // トレンド交差（ゴールデンクロス）
                 if (curMa30 && preMa30 && preMa7 <= preMa30 && curMa7 > curMa30) {
                     pool.push(
-                        `【お祝い！ゴールデンクロス！】ここ最近の短期のトレンド線が、長期のトレンド線を下から上に追い抜く『ゴールデンクロス（体重が順調に上向き変化するサイン）』が確定しました！市場の雰囲気がガラリと変わり、じわじわと右肩上がりの成長期に入った可能性を示しています。`,
-                        `【チャートに吉兆！】投資家の間で大人気の買いシグナル「ゴールデンクロス」が出現しました。下値がどんどん底堅くなってきており、中長期的なパワーの向上（バルクアップや成長期）を期待させるワクワクする足取りです。`
+                        `【トレンド転換】短期トレンド線が長期トレンド線を下から追い抜く「ゴールデンクロス」が確定しました。これは価格推移のベクトルが「上向き」にシフトした合図。ここから上値の壁にどうアプローチするか、無理のない軌道コントロールが注目されます。`
                     );
                 }
 
-                // --- パターン5: デッドクロス ---
+                // トレンド交差（デッドクロス）
                 if (curMa30 && preMa30 && preMa7 >= preMa30 && curMa7 < curMa30) {
                     pool.push(
-                        `【注目！デッドクロス発生】短期の線が長期の線を上から下に突き抜ける『デッドクロス（下落トレンドへ向かう合図）』が形成されました。株価（Weight）がこれから下がりやすくなる時期を示しており、減量を目指す方にとっては「いよいよ下落の黄金期が始まった」という嬉しい売りシグナルとなります。`,
-                        `【下落注意報、でもチャンス？】市場は下落傾向へのシフトを意味するデッドクロスを検知しました。上値が少し重たくなってきており、ここからは「食べたらすぐ下がる」「運動の成果が出やすい」弱気相場（減量優位）の波が続きそうです。`
-                    );
-                }
-
-                // --- パターン6: パーフェクトオーダー（下落：ダイエット順調） ---
-                if (curMa30 && curMa7 < curMa30 && currentKg < curMa7) {
-                    pool.push(
-                        `【最強の下落トレンド継続中！】現在の市場は、上から「長期線・短期線・今の体重」と綺麗に並ぶ、株の教科書通りの『パーフェクトオーダー（誰もが認める文句なしの下落トレンド）』をがっちりキープしています。売り方（減量派）の大勝利が続いており、理想的な引き締まり相場です。`,
-                        `【安定の下落チャネル】すばらしい節制の成果により、チャートが綺麗な右肩下がりを描いています。無駄なリバウンドを一切寄せ付けない、プロの相場師のような安定したベアマーケット（体重減少期）が続いています。`
-                    );
-                }
-
-                // --- パターン7: パーフェクトオーダー（上昇：バルク・増量期） ---
-                if (curMa30 && curMa7 > curMa30 && currentKg > curMa7) {
-                    pool.push(
-                        `【無敵の上昇トレンド！】移動平均線がすべて上を向いてスクラムを組む、強気の『パーフェクトオーダー（文句なしの上昇トレンド）』が炸裂しています。実需の買い（しっかりとした栄養摂取・バルクアップ）が非常に厚く、少しくらい運動してもビクともしない、タフで力強い元気相場です。`,
-                        `【青天井のイケイケ相場】買い手の勢いが完全に市場をリードしています。線がすべて綺麗な上向きになっており、エネルギーが満ち溢れている証拠。どこまでこの勢いが伸びるのか、市場の注目を集めています。`
+                        `【トレンド転換】短期トレンド線が長期トレンド線を上から下に突き抜ける「デッドクロス」を検知。ベクトルが「下向き」に変化したことを示します。ここから下方の適正レンジへ向けて、いかに波を立てずにソフトランディングさせるかが運用の見せ所です。`
                     );
                 }
             }
 
-            // --- パターン8: レンジ相場・停滞（いわゆる停滞期） ---
+            // レンジ相場・地盤固め
             if (len >= 3) {
                 var c1 = candleData[len - 1].y[3];
                 var c2 = candleData[len - 2].y[3];
@@ -732,43 +739,27 @@
                 var minW = Math.min(c1, c2, c3);
                 if (maxW - minW <= 0.3) {
                     pool.push(
-                        `【ボックス圏でのもみ合い】ここ数日、体重の動きがピタッと止まり『レンジ相場（いわゆるダイエットの停滞期）』に入っています。売り手と買い手のパワーが１グラム単位で拮抗していますが、株の世界では「もみ合いが長いほど、次にそこを抜けた時の値動きは大きくなる」と言われます。次の大ブレイクに向けて、今はエネルギーを溜める時間です。`,
-                        `【嵐の前の静けさ？】価格の波がほとんど立たない、とても静かな相場環境（横ばい）です。市場参加者は次のニュース（ドカ食いか、猛運動か）をじっと待っている様子。次に上と下のどちらに大きく跳ねるか、見守っていきましょう。`
+                        `【ボックス圏での定常運転】ここ数日、チャートは極めて静かな「レンジ相場」を形成しています。値動きの揺れを最小限にとどめることに成功しており、安定した需給バランスが保たれている証拠。次のステージへ向けて強固な「地盤固め」を行っている好環境です。`,
+                        `【ボラティリティの低下】価格変動が完全に抑制され、フラットな横ばい推移が続いています。突発的なノイズ（乱高下）を徹底して排除できている現状は、市場の健全性が非常に高い状態であることを示しています。`
                     );
                 }
             }
 
-            // --- パターン9: 週末・祝日のアノマリー（週末特有の動き） ---
-            var dayOfWeek = new Date().getDay(); 
-            if (dayOfWeek === 0 || dayOfWeek === 6 || dayOfWeek === 5) {
-                pool.push(
-                    `【週末アノマリー発動】週末の金・土・日特有の『週末アノマリー（お財布の紐と、お腹の紐が緩みやすくなるお決まりのパターン）』が観測されています！外食などのイベントで買い需要（増加リスク）が高まりやすい時期です。週明けの月曜日、株価がガクッと下落（ギャップダウン）するのを楽しみに、今はリラックスして見守りましょう。`,
-                    `【週末の出来高急増】週末の市場は、楽しいイベント（ポジション調整）の影響を受けやすい時間帯に入りました。取引（お食事）が活発になり、一時的に株価は上を向きやすいですが、これは週末ならではの風物詩。のんびり構えるのがプロの投資家です。`
-                );
+            // 通常レンジ（微増・微減）
+            if (pool.length === 0) {
+                if (dayDiff > 0) {
+                    pool.push(
+                        `【小幅な値幅調整】本日の取引は、微増（小さなプラス）の範囲内でマイルドに終了しました。過熱感はなく、市場が許容する健全な揺らぎの範囲内です。明日もこの落ち着いたリズムを維持できるかが焦点です。`,
+                        `【穏やかな右上がり】極めて静かに、わずかな上振れを記録。急激な乱高下を伴わないため、市場参加者に不安を与えない安心感のある足取りです。`
+                    );
+                } else {
+                    pool.push(
+                        `【小幅な価格調整】本日の市場は、わずかなマイナス（微減）を記録し、綺麗に上値を抑える格好となりました。無理のない範囲での理想的な軌道微修正であり、ディフェンシブ銘柄としての高い安定性を維持しています。`,
+                        `【マイルドな押し目】極めて小さな値幅での下方スライドです。ブレや衝撃の少ない、非常にスマートなコントロールが効いた値動きとして評価できます。`
+                    );
+                }
             }
 
-            // --- パターン10: BMI22（一番人気の心理的節目）付近の攻防 ---
-            if (Math.abs(currentKg - fairCenterKg) <= 0.5) {
-                pool.push(
-                    `【最重要の節目！BMI22の攻防】市場で一番人気のある応援ライン『BMI22（適正値のど真ん中）』を巡り、売り方と買い方による熱い防衛戦が繰り広げられています！このラインの周辺では「これ以上は増やさない」「ここからはキープ」という個人の強い意志（買い支え）が入りやすく、チャート的にもドラマチックな見どころを迎えています。`,
-                    `【みんなのターゲットに到達！】まさに理想のキリ番、BMI22のラインに株価がぴったりと吸い寄せられました。ここは市場参加者が全員意識している「絶対防衛ミニマムライン」です。ここを基準に、さらに下を目指すのかキープするのか、腕の見せ所です。`
-                );
-            }
-
-            // --- パターン11: 通常レンジ・デフォルト（通常の値動き） ---
-            if (dayDiff > 0) {
-                pool.push(
-                    `【ちょっぴり買い優勢】本日の相場は、少しだけ買いが先行して小さなプラス（微増）となりました。過熱感はなく、一時的な値幅調整の範囲内ですので、慌てる必要はまったくありません。下値もしっかりしており、落ち着いた健全な値動きです。`,
-                    `【マイルドな右上がり】売り手をじわじわと押しのけながら、少しだけ高値で取引を終えました。初心者にも優しい非常に穏やかな足取りで、急激な変化のない安心感のあるチャートです。`
-                );
-            } else {
-                pool.push(
-                    `【小幅に売り先行】本日の市場は売り手が少しリードし、嬉しいマイナス（微減）を記録しました！目標のサポートラインに向けて、じわじわと階段を降りるような理想的な歩みです。体にとっても非常に優しい調整局面といえます。`,
-                    `【うれしい押し目（一時的下落）】上値の重さに押されて、少しだけ値を下げました。明日の健康的な反発やキープに向けて、いまは力を抜きつつ歩幅を合わせているような、好感の持てる値動きです。`
-                );
-            }
-
-            // 配列からランダムに1つを選択して出力
             var randomIndex = Math.floor(Math.random() * pool.length);
             reportDiv.innerHTML = pool[randomIndex];
         }
