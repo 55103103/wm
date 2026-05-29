@@ -302,6 +302,22 @@
         }
 
 function updateChartDisplay(candle, ma7, ma30, center, min, max) {
+    // ─── 【重要】datetime軸用にデータをタイムスタンプ(ミリ秒)に変換 ───
+    var formattedCandle = candle.map(item => ({
+        x: new Date(item.x).getTime(),
+        y: item.y
+    }));
+    
+    var formattedMa7 = ma7.map(item => ({
+        x: new Date(item.x).getTime(),
+        y: item.y
+    }));
+    
+    var formattedMa30 = ma30.map(item => ({
+        x: new Date(item.x).getTime(),
+        y: item.y
+    }));
+
     var currentLastWp = candle.length > 0 ? candle[candle.length - 1].y[3] : center;
     var yMin = Math.min(min, center, currentLastWp) - 2;
     var yMax = Math.max(max, center, currentLastWp) + 2;
@@ -327,20 +343,21 @@ function updateChartDisplay(candle, ma7, ma30, center, min, max) {
         chartWrapper.insertBefore(unitDisplay, document.querySelector("#chart"));
     }
 
-    // ─── 【重要】スクロール範囲（直近7日間）の計算 ───
-    // データが7件以上ある場合は、最新（右端）から7件分のインデックス範囲をデフォルト表示にする
+    // ─── 【重要】スマホでも確実に7日間にロックする範囲計算（ミリ秒換算） ───
     var minX = undefined;
     var maxX = undefined;
-    if (candle.length > 7) {
-        minX = candle[candle.length - 7].x; // 7日前の日付
-        maxX = candle[candle.length - 1].x; // 最新の日付
+    if (formattedCandle.length > 0) {
+        var lastTimestamp = formattedCandle[formattedCandle.length - 1].x;
+        maxX = lastTimestamp;
+        // 7日分の幅（6日分遡る ＝ 6日 × 24時間 × 60分 × 60秒 × 1000ミリ秒）
+        minX = lastTimestamp - (6 * 24 * 60 * 60 * 1000); 
     }
 
     var chartOptions = {
         series: [
-            { name: 'チャート', type: 'candlestick', data: candle },
-            { name: '7日移動平均線(MA7)', type: 'line', data: ma7 },
-            { name: '30日移動平均線(MA30)', type: 'line', data: ma30 },
+            { name: 'チャート', type: 'candlestick', data: formattedCandle },
+            { name: '7日移動平均線(MA7)', type: 'line', data: formattedMa7 },
+            { name: '30日移動平均線(MA30)', type: 'line', data: formattedMa30 },
             { name: '中心値 (BMI22)', type: 'line', data: [] },
             { name: '適正範囲 (BMI18.5-25)', type: 'line', data: [] }
         ],
@@ -349,22 +366,21 @@ function updateChartDisplay(candle, ma7, ma30, center, min, max) {
             height: 350, 
             toolbar: { 
                 show: false,
-                autoSelected: 'pan' // 手のひらツール（スクロール）をデフォルトに
+                autoSelected: 'pan' 
             }, 
             background: '#131722', 
             foreColor: '#848e9c',
             animations: { enabled: false },
-            
-            // 横スクロールを機能させるためズーム設定を応用
             zoom: {
-                enabled: true,         // スক্রロールのために内部的には有効化
-                type: 'x',             // 横方向のみ
-                autoScaleYaxis: false  // スクロール時にY軸がガタガタ動くのを防ぐ
+                enabled: true,         
+                type: 'x',             
+                autoScaleYaxis: false  
             },
-            
             events: {
                 mouseMove: function(event, chartContext, config) {
+                    var sIdx = config.seriesIndex;
                     var dIdx = config.dataPointIndex;
+                    // datetime軸における正確なデータインデックスの取得
                     if (dIdx !== undefined && dIdx !== -1 && candle[dIdx]) {
                         var c = candle[dIdx].y;
                         var m7 = ma7[dIdx] && ma7[dIdx].y !== null ? ma7[dIdx].y.toFixed(1) : '--';
@@ -374,7 +390,7 @@ function updateChartDisplay(candle, ma7, ma30, center, min, max) {
                         var wpColor = isUp ? '#f23645' : '#08d158';
 
                         dataDisplay.innerHTML = `
-                            <span style="color: #fff">${candle[dIdx].length > 0 ? '' : candle[dIdx].x}</span> 
+                            <span style="color: #fff">${candle[dIdx].x}</span> 
                             <span>始:<span style="color:${wpColor}">${c[0].toFixed(1)}</span></span>
                             <span>高:<span style="color:${wpColor}">${c[1].toFixed(1)}</span></span>
                             <span>安:<span style="color:${wpColor}">${c[2].toFixed(1)}</span></span>
@@ -391,11 +407,16 @@ function updateChartDisplay(candle, ma7, ma30, center, min, max) {
         },
         stroke: { width: [1, 2, 2, 1, 0], curve: 'smooth' },
         
-        // ─── X軸の設定：初期の表示範囲を直近7日間にロック ───
+        // ─── X軸を確実な時系列(datetime)に固定 ───
         xaxis: { 
-            type: 'category',
-            min: minX, // 7日前の日付（データが7件未満なら自動調整）
-            max: maxX  // 最新の日付（常に右端が本日になる）
+            type: 'datetime',
+            min: minX, 
+            max: maxX,
+            labels: {
+                format: 'MM/dd', // 日付の表示形式を「月/日」にスッキリ化
+                datetimeUTC: false // ローカルタイムに準拠
+            },
+            tickAmount: 7 // 画面に表示する目盛りの数を7個に制限
         },
         
         yaxis: { 
@@ -431,8 +452,8 @@ function updateChartDisplay(candle, ma7, ma30, center, min, max) {
     if (chart) { chart.destroy(); }
     chart = new ApexCharts(document.querySelector("#chart"), chartOptions);
     chart.render();
-}      
- function generateMarketReport(dailyGroups, lastDate, heightM) {
+}
+     function generateMarketReport(dailyGroups, lastDate, heightM) {
             var reportDiv = document.getElementById('marketReport');
             var badgeDiv = document.getElementById('marketBadgeArea');
             
