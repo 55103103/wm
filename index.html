@@ -84,14 +84,96 @@
             background: #363c4e;
         }
         
-        /* YOUR WEIGHT MARKET 概況用 */
         .market-report {
             font-size: 0.9rem;
             line-height: 1.6;
             color: #eaecef;
         }
+
+        /* --- 本格株価レイアウト用スタイル --- */
+        .ticker-container {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+        .ticker-price {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #fff;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        .ticker-meta {
+            font-size: 0.75rem;
+            color: #848e9c;
+        }
+        .ticker-change {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .change-up { color: #f23645; }
+        .change-down { color: #08d158; }
+        .change-flat { color: #848e9c; }
+
+        .chart-tab-nav {
+            display: flex;
+            gap: 15px;
+            border-bottom: 1px solid #2a2e39;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #848e9c;
+        }
+        .chart-tab-nav span.active {
+            color: #2962ff;
+            border-bottom: 2px solid #2962ff;
+            padding-bottom: 8px;
+        }
+
+        .ohlc-info-table {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: #2a2e39;
+            margin-bottom: 8px;
+            border: 1px solid #2a2e39;
+        }
+        .ohlc-cell {
+            background: #131722;
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+        .ohlc-label { color: #848e9c; }
+        .ohlc-val { color: #fff; font-weight: bold; }
+
+        .ma-display-flex {
+            display: flex;
+            gap: 12px;
+            font-family: monospace;
+            font-size: 0.72rem;
+            padding: 4px 0;
+            margin-bottom: 5px;
+        }
+
+        .chart-period-selector {
+            display: flex;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: #848e9c;
+            margin-top: 5px;
+            padding-top: 5px;
+        }
+        .chart-period-selector span.active {
+            color: #fff;
+            font-weight: bold;
+        }
+        /* -------------------------------- */
         
-        /* 算出された適正値 表示エリア */
         .fair-wp-display {
             background: #1e222d;
             padding: 12px;
@@ -117,7 +199,6 @@
             color: #08d158;
         }
         
-        /* 入力履歴用 */
         .history-list {
             font-size: 0.85rem;
             max-height: 330px;
@@ -177,7 +258,6 @@
             background: #cf202f;
         }
         
-        /* ステータス表示 */
         .status-badge {
             display: inline-block;
             padding: 4px 8px;
@@ -209,13 +289,12 @@
     </div>
 
     <div class="card" id="topMarketCard">
-        <h2>📢 YOUR WEIGHT MARKET 概況</h2>
+        <h2>📊 YOUR WEIGHT MARKET 概況</h2>
         <div id="marketBadgeArea"></div>
         <div id="marketReport" class="market-report">データが不足しています。市場にアクセスしてDataを記録してください。</div>
     </div>
 
     <div class="card">
-        <h2>📊 Dataを入力</h2>
         <div class="grid">
             <div>
                 <label>日時</label>
@@ -234,8 +313,45 @@
     </div>
 
     <div class="card">
-        <h2>📉 チャート</h2>
-        <div id="chart"></div>
+        <div class="ticker-container">
+            <div class="ticker-price" id="tkPrice">--.--</div>
+            <div class="ticker-meta" id="tkDate">(==/== ==:== 大引)</div>
+            <div class="ticker-change" id="tkChange">--.-- (--%)</div>
+        </div>
+
+        <div class="chart-tab-nav">
+            <span class="active">トップ</span>
+            <span>時系列</span>
+            <span>構成銘柄</span>
+            <span>関連ファンド</span>
+        </div>
+
+        <div class="ohlc-info-table">
+            <div class="ohlc-cell"><span class="ohlc-label">始値</span><span class="ohlc-val" id="hdOpen">--.-</span></div>
+            <div class="ohlc-cell"><span class="ohlc-label">高値</span><span class="ohlc-val" id="hdHigh">--.-</span></div>
+            <div class="ohlc-cell"><span class="ohlc-label">安値</span><span class="ohlc-val" id="hdLow">--.-</span></div>
+            <div class="ohlc-cell"><span class="ohlc-label">終値</span><span class="ohlc-val" id="hdClose">--.-</span></div>
+            <div class="ohlc-cell"><span class="ohlc-label">前日終値</span><span class="ohlc-val" id="hdPrevClose">--.-</span></div>
+            <div class="ohlc-cell"><span class="ohlc-label">年初来高値</span><span class="ohlc-val" id="hdYearHigh" style="color: #f23645;">--.-</span></div>
+            <div class="ohlc-cell"><span class="ohlc-label">売買代金（出来高）</span><span class="ohlc-val" id="hdVolume">--.- kg</span></div>
+            <div class="ohlc-cell"><span class="ohlc-label">年初来安値</span><span class="ohlc-val" id="hdYearLow" style="color: #08d158;">--.-</span></div>
+        </div>
+
+        <div class="ma-display-flex">
+            <div style="color: #ff9800;">● 5日移動平均: <span id="hdMA7" style="color:#fff; font-weight:bold;">--.-</span></div>
+            <div style="color: #e91e63;">● 25日移動平均: <span id="hdMA30" style="color:#fff; font-weight:bold;">--.-</span></div>
+        </div>
+
+        <div id="chart" style="margin-top: 5px;"></div>
+
+        <div class="chart-period-selector">
+            <span>1日</span>
+            <span class="active">3ヶ月</span>
+            <span>6ヶ月</span>
+            <span>1年</span>
+            <span>5年</span>
+            <span style="margin-left: auto; color: #848e9c; font-size: 0.7rem;">※縦軸はkg、横軸は期間を表す</span>
+        </div>
     </div>
 
     <div class="card">
@@ -273,7 +389,6 @@
     <script>
         var chart = null;
 
-        // 現在日時のセット
         function setNowDateTime() {
             var now = new Date();
             var offset = now.getTimezoneOffset() * 60000;
@@ -282,14 +397,12 @@
         }
         setNowDateTime();
 
-        // プロフィールの読み込み
         function loadProfile() {
             var profile = JSON.parse(localStorage.getItem('weightMarketProfile')) || { height: 170, gender: 'male' };
             document.getElementById('userHeight').value = profile.height;
             document.getElementById('userGender').value = profile.gender;
         }
 
-        // プロフィールの保存
         function saveProfile() {
             var h = parseFloat(document.getElementById('userHeight').value);
             var g = document.getElementById('userGender').value;
@@ -307,7 +420,6 @@
             loadMarketData(true);
         };
 
-        // Data（Weight/Memo）の保存
         function savePrice() {
             var dateTimeStr = document.getElementById('marketDateTime').value;
             var inputVal = parseFloat(document.getElementById('weightPrice').value);
@@ -365,7 +477,6 @@
             document.getElementById('weightMemo').value = '';
             setNowDateTime();
             
-            // 体重入力があった場合のみレポートを更新
             loadMarketData(hasWeightInput);
 
             document.getElementById('topMarketCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -437,6 +548,13 @@
 
             var validWeightHistory = rawHistory.filter(item => item.wp !== null);
 
+            var allWps = validWeightHistory.map(item => item.wp);
+            var yearHigh = allWps.length > 0 ? Math.max(...allWps) : null;
+            var yearLow = allWps.length > 0 ? Math.min(...allWps) : null;
+
+            if (yearHigh !== null) document.getElementById('hdYearHigh').innerText = yearHigh.toFixed(1) + " kg";
+            if (yearLow !== null) document.getElementById('hdYearLow').innerText = yearLow.toFixed(1) + " kg";
+
             var dailyGroups = {};
             validWeightHistory.forEach(item => {
                 var date = item.dateTime.substring(0, 10);
@@ -445,6 +563,7 @@
             });
 
             var candleData = [];
+            var volumeData = []; 
             var dates = [];
             for (var date in dailyGroups) {
                 dates.push(date);
@@ -455,6 +574,9 @@
                 var highW = Math.max(...wValues);
                 var lowW = Math.min(...wValues);
                 candleData.push({ x: date, y: [openW, highW, lowW, closeW] });
+                
+                var dayWpSum = wValues.reduce((sum, current) => sum + current, 0);
+                volumeData.push({ x: date, y: dayWpSum, fillColor: '#2a2e39' });
             }
 
             var ma7Data = [];
@@ -479,51 +601,89 @@
                 }
             }
 
-            updateChartDisplay(candleData, ma7Data, ma30Data, fairCenterKg, fairMinKg, fairMaxKg);
+            updateTickerDisplay(candleData);
+            updateChartDisplayAdvanced(candleData, ma7Data, ma30Data, volumeData, fairCenterKg, fairMinKg, fairMaxKg, primeMinKg, primeMaxKg);
             
             if (shouldUpdateReport) {
                 generateMarketReportAdvanced(validWeightHistory, candleData, ma7Data, ma30Data, heightM, fairCenterKg, fairMinKg, fairMaxKg);
             }
         }
 
-        function updateChartDisplay(candle, ma7, ma30, center, min, max) {
+        function updateTickerDisplay(candle) {
+            var tkPrice = document.getElementById('tkPrice');
+            var tkDate = document.getElementById('tkDate');
+            var tkChange = document.getElementById('tkChange');
+
+            if (candle.length === 0) {
+                tkPrice.innerText = '--.--';
+                tkDate.innerText = '(データなし)';
+                tkChange.innerText = '0.00 (0%)';
+                tkChange.className = 'ticker-change change-flat';
+                return;
+            }
+
+            var lastCandle = candle[candle.length - 1];
+            var currentWp = lastCandle.y[3];
+            var formattedDate = lastCandle.x.substring(5,10).replace('-', '/');
+            
+            tkPrice.innerText = currentWp.toFixed(2);
+            tkDate.innerText = `(${formattedDate} 15:45 大引)`;
+
+            if (candle.length >= 2) {
+                var prevWp = candle[candle.length - 2].y[3];
+                var diff = currentWp - prevWp;
+                var pct = (diff / prevWp) * 100;
+                
+                var sign = diff > 0 ? '+' : '';
+                tkChange.innerText = `${sign}${diff.toFixed(2)} (${sign}${pct.toFixed(2)}%)`;
+                
+                if (diff > 0) {
+                    tkChange.className = 'ticker-change change-up';
+                } else if (diff < 0) {
+                    tkChange.className = 'ticker-change change-down';
+                } else {
+                    tkChange.className = 'ticker-change change-flat';
+                }
+                document.getElementById('hdPrevClose').innerText = prevWp.toFixed(1) + " kg";
+            } else {
+                tkChange.innerText = '0.00 (0.00%)';
+                tkChange.className = 'ticker-change change-flat';
+                document.getElementById('hdPrevClose').innerText = "--.-";
+            }
+
+            document.getElementById('hdOpen').innerText = lastCandle.y[0].toFixed(1) + " kg";
+            document.getElementById('hdHigh').innerText = lastCandle.y[1].toFixed(1) + " kg";
+            document.getElementById('hdLow').innerText = lastCandle.y[2].toFixed(1) + " kg";
+            document.getElementById('hdClose').innerText = lastCandle.y[3].toFixed(1) + " kg";
+        }
+
+        function updateChartDisplayAdvanced(candle, ma7, ma30, volume, center, min, max, pMin, pMax) {
             var currentLastWp = candle.length > 0 ? candle[candle.length - 1].y[3] : center;
-            var yMin = Math.min(min, center, currentLastWp) - 2;
-            var yMax = Math.max(max, center, currentLastWp) + 2;
+            
+            var wpsOnly = candle.map(c => c.y).flat();
+            var historyMin = wpsOnly.length > 0 ? Math.min(...wpsOnly, min) : min;
+            var historyMax = wpsOnly.length > 0 ? Math.max(...wpsOnly, max) : max;
+            var priceRange = historyMax - historyMin || 5;
 
-            var chartWrapper = document.querySelector("#chart").parentNode;
-            var dataDisplay = document.getElementById("chartLiveData");
-            if (!dataDisplay) {
-                dataDisplay = document.createElement("div");
-                dataDisplay.id = "chartLiveData";
-                dataDisplay.style.cssText = "font-size: 0.75rem; font-family: monospace; color: #848e9c; margin-bottom: 10px; min-height: 18px; line-height: 1.4; display: flex; flex-wrap: wrap; gap: 8px;";
-                dataDisplay.innerHTML = "💡 タッチまたはホバーで詳細データを表示";
-                chartWrapper.insertBefore(dataDisplay, document.querySelector("#chart"));
-            }
-
-            var unitDisplay = document.getElementById("chartUnitDisplay");
-            if (!unitDisplay) {
-                unitDisplay = document.createElement("div");
-                unitDisplay.id = "chartUnitDisplay";
-                unitDisplay.style.cssText = "font-size: 0.7rem; color: #848e9c; font-family: monospace; padding-left: 5px; margin-bottom: -5px; position: relative; z-index: 10;";
-                unitDisplay.innerText = "(kg)";
-                chartWrapper.insertBefore(unitDisplay, document.querySelector("#chart"));
-            }
+            var yMin = historyMin - (priceRange * 0.45); 
+            var yMax = historyMax + (priceRange * 0.15);
 
             var chartTarget = document.querySelector("#chart");
-            chartTarget.style.width = "100%";
-
+            
+            if(volume.length > 0) {
+                document.getElementById('hdVolume').innerText = volume[volume.length - 1].y.toFixed(1) + " kg";
+            }
+            
             var chartOptions = {
                 series: [
                     { name: '価格推移', type: 'candlestick', data: candle },
                     { name: '短期トレンド(MA7)', type: 'line', data: ma7 },
                     { name: '長期トレンド(MA30)', type: 'line', data: ma30 },
-                    { name: '中心値 (BMI22)', type: 'line', data: [] },
-                    { name: '適正範囲 (BMI18.5-25)', type: 'line', data: [] }
+                    { name: '売買代金(出来高)', type: 'bar', data: volume }
                 ],
                 chart: { 
                     type: 'line', 
-                    height: 350, 
+                    height: 380, 
                     toolbar: { show: false }, 
                     background: '#131722', 
                     foreColor: '#848e9c',
@@ -536,54 +696,81 @@
                                 var c = candle[dIdx].y;
                                 var m7 = ma7[dIdx] && ma7[dIdx].y !== null ? ma7[dIdx].y.toFixed(1) : '--';
                                 var m30 = ma30[dIdx] && ma30[dIdx].y !== null ? ma30[dIdx].y.toFixed(1) : '--';
-                                
-                                var isUp = c[3] >= c[0];
-                                var wpColor = isUp ? '#f23645' : '#08d158';
+                                var volRaw = volume[dIdx] ? volume[dIdx].y : 0;
 
-                                dataDisplay.innerHTML = `
-                                    <span style="color: #fff">${candle[dIdx].x}</span> 
-                                    <span>始:<span style="color:${wpColor}">${c[0].toFixed(1)}</span></span>
-                                    <span>高:<span style="color:${wpColor}">${c[1].toFixed(1)}</span></span>
-                                    <span>安:<span style="color:${wpColor}">${c[2].toFixed(1)}</span></span>
-                                    <span>終:<span style="color:${wpColor}">${c[3].toFixed(1)}</span></span>
-                                    <span>| MA7:<span style="color:#ff9800">${m7}</span></span>
-                                    <span>MA30:<span style="color:#e91e63">${m30}</span></span>
-                                `;
+                                document.getElementById('hdOpen').innerText = c[0].toFixed(1) + " kg";
+                                document.getElementById('hdHigh').innerText = c[1].toFixed(1) + " kg";
+                                document.getElementById('hdLow').innerText = c[2].toFixed(1) + " kg";
+                                document.getElementById('hdClose').innerText = c[3].toFixed(1) + " kg";
+                                document.getElementById('hdMA7').innerText = m7;
+                                document.getElementById('hdMA30').innerText = m30;
+                                document.getElementById('hdVolume').innerText = volRaw.toFixed(1) + " kg";
                             }
                         },
                         mouseLeave: function() {
-                            dataDisplay.innerHTML = "💡 タッチまたはホバーで詳細データを表示";
+                            if(candle.length > 0) {
+                                var last = candle[candle.length - 1];
+                                document.getElementById('hdOpen').innerText = last.y[0].toFixed(1) + " kg";
+                                document.getElementById('hdHigh').innerText = last.y[1].toFixed(1) + " kg";
+                                document.getElementById('hdLow').innerText = last.y[2].toFixed(1) + " kg";
+                                document.getElementById('hdClose').innerText = last.y[3].toFixed(1) + " kg";
+                                
+                                var lastMa7 = ma7[ma7.length - 1] && ma7[ma7.length - 1].y !== null ? ma7[ma7.length - 1].y.toFixed(1) : '--';
+                                var lastMa30 = ma30[ma30.length - 1] && ma30[ma30.length - 1].y !== null ? ma30[ma30.length - 1].y.toFixed(1) : '--';
+                                var lastVol = volume[volume.length - 1] ? volume[volume.length - 1].y : 0;
+                                
+                                document.getElementById('hdMA7').innerText = lastMa7;
+                                document.getElementById('hdMA30').innerText = lastMa30;
+                                document.getElementById('hdVolume').innerText = lastVol.toFixed(1) + " kg";
+                            }
                         }
                     }
                 },
-                stroke: { width: [1, 2, 2, 1, 0], curve: 'smooth' },
+                stroke: { width: [1, 1.5, 1.5, 0], curve: 'smooth' },
                 xaxis: { 
                     type: 'category',
                     labels: { show: true, rotate: 0 }
                 },
-                yaxis: { 
-                    min: Math.floor(yMin),
-                    max: Math.ceil(yMax),
-                    labels: { 
-                        minWidth: 26, 
-                        maxWidth: 32, 
-                        offsetX: -5, 
-                        formatter: function (val) { return val ? val.toFixed(1) : ""; }
-                    } 
-                },
+                yaxis: [
+                    {
+                        seriesName: '価格推移',
+                        min: yMin,
+                        max: yMax,
+                        labels: { 
+                            minWidth: 28, 
+                            offsetX: -5,
+                            formatter: function (val) { 
+                                return (val >= historyMin - 1) ? val.toFixed(1) : ""; 
+                            }
+                        }
+                    },
+                    { seriesName: '価格推移', show: false, min: yMin, max: yMax },
+                    { seriesName: '価格推移', show: false, min: yMin, max: yMax },
+                    {
+                        seriesName: '売買代金(出来高)',
+                        opposite: true,
+                        show: false, 
+                        max: function(maxVal) { return maxVal > 0 ? maxVal * 4.2 : 400; }, 
+                        min: 0
+                    }
+                ],
                 grid: { 
                     borderColor: '#2a2e39',
-                    padding: { left: -10, right: 0 }
+                    padding: { left: -10, right: -10 }
                 },
-                colors: ['#2962ff', '#ff9800', '#e91e63', '#2962ff', '#08d158'],
-                plotOptions: { candlestick: { colors: { upward: '#f23645', downward: '#08d158' } } },
-                legend: { show: true, position: 'bottom', horizontalAlign: 'center', labels: { colors: '#848e9c' } },
+                colors: ['#2962ff', '#ff9800', '#e91e63', '#2a2e39'], 
+                plotOptions: { 
+                    candlestick: { colors: { upward: '#f23645', downward: '#08d158' } },
+                    bar: { columnWidth: '75%', opacity: 0.8 }
+                },
+                legend: { show: false }, 
                 tooltip: { enabled: false }, 
                 annotations: {
                     position: 'front',
                     yaxis: [
-                        { y: min, y2: max, fillColor: '#08d158', opacity: 0.12, borderColor: '#08d158', strokeDashArray: 3, width: '100%', label: { show: false } },
-                        { y: center, borderColor: '#2962ff', strokeDashArray: 0, borderWidth: 1, width: '100%', label: { show: false } }
+                        { y: min, y2: max, fillColor: '#08d158', opacity: 0.04, borderColor: '#08d158', strokeDashArray: 3, width: '100%', label: { show: false } },
+                        { y: pMin, y2: pMax, fillColor: '#2962ff', opacity: 0.12, borderColor: '#2962ff', strokeDashArray: 0, width: '100%', label: { show: false } },
+                        { y: center, borderColor: '#2962ff', strokeDashArray: 0, borderWidth: 1.5, width: '100%', label: { show: false } }
                     ]
                 }
             };
@@ -601,29 +788,13 @@
             toast.id = "customToast";
             
             toast.style.cssText = `
-                position: fixed;
-                top: 40%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: rgba(19, 23, 34, 0.98);
-                color: #fff;
-                padding: 60px 80px;
-                border-radius: 16px;
-                font-size: 2.2rem;
-                font-family: sans-serif;
-                font-weight: bold;
-                letter-spacing: 2px;
-                box-shadow: 0 12px 40px rgba(0,0,0,0.7);
-                z-index: 9999;
-                transition: opacity 0.2s ease, transform 0.2s ease;
-                opacity: 0;
-                cursor: pointer;
-                border: 2px solid #2962ff;
-                min-width: 280px;
-                text-align: center;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+                background: rgba(19, 23, 34, 0.98); color: #fff; padding: 60px 80px;
+                border-radius: 16px; font-size: 2.2rem; font-family: sans-serif; font-weight: bold;
+                letter-spacing: 2px; box-shadow: 0 12px 40px rgba(0,0,0,0.7); z-index: 9999;
+                transition: opacity 0.2s ease, transform 0.2s ease; opacity: 0; cursor: pointer;
+                border: 2px solid #2962ff; min-width: 280px; text-align: center;
+                display: flex; align-items: center; justify-content: center;
             `;
             toast.innerText = message;
             document.body.appendChild(toast);
@@ -643,7 +814,6 @@
             setTimeout(removeToast, 3000);
         }
 
-        // 新基準に基づいたレポートエンジン
         function generateMarketReportAdvanced(validWeightHistory, candleData, ma7Data, ma30Data, heightM, fairCenterKg, fairMinKg, fairMaxKg) {
             var reportDiv = document.getElementById('marketReport');
             var badgeDiv = document.getElementById('marketBadgeArea');
@@ -658,7 +828,6 @@
             var currentKg = lastInput.wp;
             var currentBMI = currentKg / (heightM * heightM);
             
-            // 3段階の市場格付け判定
             if (currentBMI >= 21.0 && currentBMI <= 23.0) {
                 badgeDiv.innerHTML = `<span class="status-badge status-prime">🏆 Prime Value（超優良・プライムレンジ推移）</span>`;
             } else if (currentBMI >= 18.5 && currentBMI <= 25.0) {
@@ -671,12 +840,11 @@
             var dayDiff = 0;
             if (len > 0) {
                 var c = candleData[len - 1].y; 
-                dayDiff = c[3] - c[0]; // 本日の終値 - 始値
+                dayDiff = c[3] - c[0];
             }
 
             var pool = [];
 
-            // 🚨 ボラティリティ急上昇のサプライズ（1.0kg以上の激しい値動き）
             if (dayDiff >= 1.0) {
                 pool.push(
                     `【臨時ニュース：ボラティリティ急上昇】本日の相場は、短期的な要因により価格が大きなプラス（上振れ）を記録しました。当相場では、こうした突発的な急騰は計画性を欠いた「スピード違反」と見なされやすく、明日は取引が沈静化し、元の巡航軌道へ戻るかどうかが焦点です。`,
@@ -690,11 +858,8 @@
                 );
             }
 
-            // 🍀 マイルドな推移（1.0kg未満の正常な需給の波）
             if (pool.length === 0) {
                 var isPrimeZone = (currentBMI >= 21.0 && currentBMI <= 23.0);
-                var isFairZone = (currentBMI >= 18.5 && currentBMI <= 25.0);
-
                 var isApproachingCenter = false;
                 if (len >= 2) {
                     var prevWp = candleData[len - 2].y[3];
@@ -705,15 +870,13 @@
                     }
                 }
 
-                // 1. 最高評価域でのマイルド安定
                 if (isPrimeZone && Math.abs(dayDiff) < 1.0) {
                     pool.push(
-                        `【ディフェンシブの極み】本日も価格のブレをノイズの範囲に抑え、盤石の「Prime Value」を維持しています。外部の雑音に惑わされないこの圧倒的な安定性は長期投資家に至高の安心感を与えており、市場の模範となる立ち振る舞いです。`,
+                        `【ディフェンシブの極み】本日も価格のブレをノイズの範囲に抑え、盤石 of 盤石な「Prime Value」を維持しています。外部の雑音に惑わされないこの圧倒的な安定性は長期投資家に至高の安心感を与えており、市場の模範となる立ち振る舞いです。`,
                         `【ガバナンス最高評価】理想的なレンジのど真ん中で、正確かつ揺るぎないフラット推移をキープ。激しい演出を嫌い、持続可能性のみを追求するその一貫した相場運営は、最高の格付けに値します。`
                     );
                 }
                 
-                // 2. 緩やかな中心値へのアプローチ
                 if (isApproachingCenter && !isPrimeZone) {
                     pool.push(
                         `【最優秀アプローチ】現在、極めて計画的かつ理想的な「中心値への軟着陸（ソフトランディング）」が進行しています。市場参加者のコンセンサスを得た無理のない確かな足取りであり、抜群のコントロール意識として高く評価されています。`,
@@ -721,7 +884,6 @@
                     );
                 }
 
-                // 3. ボックス圏相場（地盤固め）
                 if (len >= 3) {
                     var c1 = candleData[len - 1].y[3];
                     var c2 = candleData[len - 2].y[3];
@@ -734,7 +896,6 @@
                     }
                 }
 
-                // 4. 通常レンジ（微増・微減）
                 if (pool.length === 0) {
                     if (dayDiff > 0) {
                         pool.push(
