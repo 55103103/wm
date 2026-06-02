@@ -140,6 +140,9 @@
             margin-bottom: 8px;
             border: 1px solid #2a2e39;
         }
+        .ohlc-cell-full {
+            grid-column: 1 / span 2;
+        }
         .ohlc-cell {
             background: #131722;
             display: flex;
@@ -172,7 +175,6 @@
             color: #fff;
             font-weight: bold;
         }
-        /* -------------------------------- */
         
         .fair-wp-display {
             background: #1e222d;
@@ -199,23 +201,23 @@
             color: #08d158;
         }
         
+        /* --- 入力履歴レイアウト（メモ幅最大化） --- */
         .history-list {
             font-size: 0.85rem;
             max-height: 330px;
             overflow-y: auto;
         }
         .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 10px 0;
+            display: block;
+            padding: 12px 0;
             border-bottom: 1px solid #2a2e39;
         }
         .history-text {
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            width: 85%;
+            gap: 5px;
+            width: 100%;
+            min-width: 0;
         }
         .history-row-top {
             display: flex;
@@ -224,38 +226,29 @@
             gap: 8px;
             line-height: 1.4;
             min-height: 24px;
+            user-select: none;
+            -webkit-user-select: none;
+            cursor: pointer;
+        }
+        .history-row-top span:first-child {
+            border-bottom: 1px dashed #434651;
+            padding-bottom: 1px;
         }
         .history-row-bottom {
             margin-top: 2px;
             line-height: 1.4;
+            width: 100%;
         }
         .history-memo {
             font-size: 0.8rem;
             color: #848e9c;
             background: #1e222d;
-            padding: 2px 6px;
+            padding: 5px 10px;
             border-radius: 4px;
             display: inline-block;
-            max-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
             word-break: break-all;
-        }
-        .btn-delete {
-            background: #f23645;
-            color: white;
-            padding: 0 10px;
-            height: 32px;
-            font-size: 0.75rem;
-            border-radius: 4px;
-            border: none;
-            width: auto;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .btn-delete:hover {
-            background: #cf202f;
         }
         
         .status-badge {
@@ -312,50 +305,50 @@
         <button onclick="savePrice()">入力</button>
     </div>
 
-    <div class="card">
-        <div class="ticker-container">
+    <div class="card" style="padding: 20px 10px;"> <div class="ticker-container" style="padding: 0 10px;">
             <div class="ticker-price" id="tkPrice">--.--</div>
             <div class="ticker-meta" id="tkDate">(==/== ==:== 大引)</div>
             <div class="ticker-change" id="tkChange">--.-- (--%)</div>
         </div>
 
-        <div class="chart-tab-nav">
+        <div class="chart-tab-nav" style="margin-left: 10px; margin-right: 10px;">
             <span class="active">トップ</span>
             <span>時系列</span>
             <span>構成銘柄</span>
             <span>関連ファンド</span>
         </div>
 
-        <div class="ohlc-info-table">
+        <div class="ohlc-info-table" style="margin-left: 10px; margin-right: 10px;">
+            <div class="ohlc-cell ohlc-cell-full"><span class="ohlc-label">取引日時</span><span class="ohlc-val" id="hdTargetDate" style="color: #2962ff;">----/--/--</span></div>
             <div class="ohlc-cell"><span class="ohlc-label">始値</span><span class="ohlc-val" id="hdOpen">--.-</span></div>
             <div class="ohlc-cell"><span class="ohlc-label">高値</span><span class="ohlc-val" id="hdHigh">--.-</span></div>
             <div class="ohlc-cell"><span class="ohlc-label">安値</span><span class="ohlc-val" id="hdLow">--.-</span></div>
             <div class="ohlc-cell"><span class="ohlc-label">終値</span><span class="ohlc-val" id="hdClose">--.-</span></div>
             <div class="ohlc-cell"><span class="ohlc-label">前日終値</span><span class="ohlc-val" id="hdPrevClose">--.-</span></div>
             <div class="ohlc-cell"><span class="ohlc-label">年初来高値</span><span class="ohlc-val" id="hdYearHigh" style="color: #f23645;">--.-</span></div>
-            <div class="ohlc-cell"><span class="ohlc-label">売買代金（出来高）</span><span class="ohlc-val" id="hdVolume">--.- kg</span></div>
+            <div class="ohlc-cell"><span class="ohlc-label">取引回数</span><span class="ohlc-val" id="hdVolume">--</span></div>
             <div class="ohlc-cell"><span class="ohlc-label">年初来安値</span><span class="ohlc-val" id="hdYearLow" style="color: #08d158;">--.-</span></div>
         </div>
 
-        <div class="ma-display-flex">
+        <div class="ma-display-flex" style="padding: 4px 10px;">
             <div style="color: #ff9800;">● 5日移動平均: <span id="hdMA7" style="color:#fff; font-weight:bold;">--.-</span></div>
             <div style="color: #e91e63;">● 25日移動平均: <span id="hdMA30" style="color:#fff; font-weight:bold;">--.-</span></div>
         </div>
 
-        <div id="chart" style="margin-top: 5px;"></div>
+        <div id="chart" style="margin-top: 5px; width: 100%;"></div>
 
-        <div class="chart-period-selector">
+        <div class="chart-period-selector" style="padding: 5px 10px 0 10px;">
             <span>1日</span>
             <span class="active">3ヶ月</span>
             <span>6ヶ月</span>
             <span>1年</span>
             <span>5年</span>
-            <span style="margin-left: auto; color: #848e9c; font-size: 0.7rem;">※縦軸はkg、横軸は期間を表す</span>
+            <span style="margin-left: auto; color: #848e9c; font-size: 0.7rem;">※縦軸はインデックス、横軸は期間を表す</span>
         </div>
     </div>
 
     <div class="card">
-        <h2>📝 入力履歴</h2>
+        <h2>📝 入力履歴 <span style="font-size: 0.75rem; color: #848e9c; font-weight: normal; margin-left: 5px;">（日時を長押しで削除）</span></h2>
         <div id="historyList" class="history-list">履歴がありません</div>
     </div>
 
@@ -488,7 +481,37 @@
                 var filtered = rawHistory.filter(item => item.id !== id);
                 localStorage.setItem('weightMarketRawData', JSON.stringify(filtered));
                 loadMarketData(true);
+                showToast('Deleted');
             }
+        }
+
+        function bindLongPressEvent(element, id) {
+            let timer = null;
+            const delay = 800;
+
+            function start() {
+                if (timer) clearTimeout(timer);
+                timer = setTimeout(() => {
+                    deletePrice(id);
+                    timer = null;
+                }, delay);
+            }
+
+            function cancel() {
+                if (timer) {
+                    clearTimeout(timer);
+                    timer = null;
+                }
+            }
+
+            element.addEventListener('mousedown', start);
+            element.addEventListener('mouseup', cancel);
+            element.addEventListener('mouseleave', cancel);
+
+            element.addEventListener('touchstart', start);
+            element.addEventListener('touchend', cancel);
+            element.addEventListener('touchmove', cancel);
+            element.addEventListener('touchcancel', cancel);
         }
 
         function loadMarketData(shouldUpdateReport) {
@@ -519,32 +542,54 @@
             if (rawHistory.length === 0) {
                 historyListDiv.innerHTML = '履歴がありません';
             } else {
-                var html = '';
+                historyListDiv.innerHTML = '';
+                
                 [...rawHistory].reverse().forEach(item => {
                     var displayTime = item.dateTime.replace('T', ' ');
                     var topRowContent = `<span>📅 ${displayTime}</span>`;
                     var bottomRowContent = '';
 
                     if (item.wp !== null) {
-                        topRowContent += ` ➡️ <strong>${item.wp.toFixed(1)}kg</strong>`;
+                        topRowContent += ` ➡️ <strong>${item.wp.toFixed(1)}</strong>`;
                     } else {
-                        topRowContent += ` ➡️ <strong>--kg</strong>`;
+                        topRowContent += ` ➡️ <strong>--</strong>`;
                     }
                     
                     if (item.memo) {
-                        bottomRowContent = `<div class="history-row-bottom" style="padding-left: 0; margin-left: 0;"><span class="history-memo">📝 ${item.memo}</span></div>`;
+                        bottomRowContent = `<div class="history-row-bottom"><span class="history-memo">📝 ${item.memo}</span></div>`;
                     }
                     
-                    html += `<div class="history-item">
-                        <div class="history-text">
-                            <div class="history-row-top">${topRowContent}</div>
-                            ${bottomRowContent}
-                        </div>
-                        <button class="btn-delete" onclick="deletePrice(${item.id})">削除</button>
-                    </div>`;
+                    var itemEl = document.createElement('div');
+                    itemEl.className = 'history-item';
+                    
+                    var textEl = document.createElement('div');
+                    textEl.className = 'history-text';
+                    
+                    var rowTopEl = document.createElement('div');
+                    rowTopEl.className = 'history-row-top';
+                    rowTopEl.innerHTML = topRowContent;
+                    
+                    bindLongPressEvent(rowTopEl, item.id);
+                    
+                    textEl.appendChild(rowTopEl);
+                    if (item.memo) {
+                        var rowBottomEl = document.createElement('div');
+                        rowBottomEl.className = 'history-row-bottom';
+                        rowBottomEl.innerHTML = bottomRowContent;
+                        textEl.appendChild(rowBottomEl);
+                    }
+                    
+                    itemEl.appendChild(textEl);
+                    historyListDiv.appendChild(itemEl);
                 });
-                historyListDiv.innerHTML = html;
             }
+
+            var dailyTotalCounts = {};
+            rawHistory.forEach(item => {
+                var date = item.dateTime.substring(0, 10);
+                if (!dailyTotalCounts[date]) dailyTotalCounts[date] = 0;
+                dailyTotalCounts[date]++;
+            });
 
             var validWeightHistory = rawHistory.filter(item => item.wp !== null);
 
@@ -552,8 +597,8 @@
             var yearHigh = allWps.length > 0 ? Math.max(...allWps) : null;
             var yearLow = allWps.length > 0 ? Math.min(...allWps) : null;
 
-            if (yearHigh !== null) document.getElementById('hdYearHigh').innerText = yearHigh.toFixed(1) + " kg";
-            if (yearLow !== null) document.getElementById('hdYearLow').innerText = yearLow.toFixed(1) + " kg";
+            if (yearHigh !== null) document.getElementById('hdYearHigh').innerText = yearHigh.toFixed(1);
+            if (yearLow !== null) document.getElementById('hdYearLow').innerText = yearLow.toFixed(1);
 
             var dailyGroups = {};
             validWeightHistory.forEach(item => {
@@ -575,8 +620,8 @@
                 var lowW = Math.min(...wValues);
                 candleData.push({ x: date, y: [openW, highW, lowW, closeW] });
                 
-                var dayWpSum = wValues.reduce((sum, current) => sum + current, 0);
-                volumeData.push({ x: date, y: dayWpSum, fillColor: '#2a2e39' });
+                var dayCount = dailyTotalCounts[date] || 0;
+                volumeData.push({ x: date, y: dayCount, fillColor: '#2a2e39' });
             }
 
             var ma7Data = [];
@@ -601,7 +646,7 @@
                 }
             }
 
-            updateTickerDisplay(candleData);
+            updateTickerDisplay(candleData, volumeData);
             updateChartDisplayAdvanced(candleData, ma7Data, ma30Data, volumeData, fairCenterKg, fairMinKg, fairMaxKg, primeMinKg, primeMaxKg);
             
             if (shouldUpdateReport) {
@@ -609,7 +654,7 @@
             }
         }
 
-        function updateTickerDisplay(candle) {
+        function updateTickerDisplay(candle, volume) {
             var tkPrice = document.getElementById('tkPrice');
             var tkDate = document.getElementById('tkDate');
             var tkChange = document.getElementById('tkChange');
@@ -619,6 +664,7 @@
                 tkDate.innerText = '(データなし)';
                 tkChange.innerText = '0.00 (0%)';
                 tkChange.className = 'ticker-change change-flat';
+                document.getElementById('hdTargetDate').innerText = "----/--/--";
                 return;
             }
 
@@ -644,17 +690,22 @@
                 } else {
                     tkChange.className = 'ticker-change change-flat';
                 }
-                document.getElementById('hdPrevClose').innerText = prevWp.toFixed(1) + " kg";
+                document.getElementById('hdPrevClose').innerText = prevWp.toFixed(1);
             } else {
                 tkChange.innerText = '0.00 (0.00%)';
                 tkChange.className = 'ticker-change change-flat';
                 document.getElementById('hdPrevClose').innerText = "--.-";
             }
 
-            document.getElementById('hdOpen').innerText = lastCandle.y[0].toFixed(1) + " kg";
-            document.getElementById('hdHigh').innerText = lastCandle.y[1].toFixed(1) + " kg";
-            document.getElementById('hdLow').innerText = lastCandle.y[2].toFixed(1) + " kg";
-            document.getElementById('hdClose').innerText = lastCandle.y[3].toFixed(1) + " kg";
+            document.getElementById('hdTargetDate').innerText = lastCandle.x;
+            document.getElementById('hdOpen').innerText = lastCandle.y[0].toFixed(1);
+            document.getElementById('hdHigh').innerText = lastCandle.y[1].toFixed(1);
+            document.getElementById('hdLow').innerText = lastCandle.y[2].toFixed(1);
+            document.getElementById('hdClose').innerText = lastCandle.y[3].toFixed(1);
+            
+            if(volume.length > 0) {
+                document.getElementById('hdVolume').innerText = volume[volume.length - 1].y;
+            }
         }
 
         function updateChartDisplayAdvanced(candle, ma7, ma30, volume, center, min, max, pMin, pMax) {
@@ -670,20 +721,17 @@
 
             var chartTarget = document.querySelector("#chart");
             
-            if(volume.length > 0) {
-                document.getElementById('hdVolume').innerText = volume[volume.length - 1].y.toFixed(1) + " kg";
-            }
-            
             var chartOptions = {
                 series: [
                     { name: '価格推移', type: 'candlestick', data: candle },
                     { name: '短期トレンド(MA7)', type: 'line', data: ma7 },
                     { name: '長期トレンド(MA30)', type: 'line', data: ma30 },
-                    { name: '売買代金(出来高)', type: 'bar', data: volume }
+                    { name: '取引回数', type: 'bar', data: volume }
                 ],
                 chart: { 
                     type: 'line', 
                     height: 380, 
+                    width: '100%', /* 横幅いっぱいに指定 */
                     toolbar: { show: false }, 
                     background: '#131722', 
                     foreColor: '#848e9c',
@@ -698,22 +746,24 @@
                                 var m30 = ma30[dIdx] && ma30[dIdx].y !== null ? ma30[dIdx].y.toFixed(1) : '--';
                                 var volRaw = volume[dIdx] ? volume[dIdx].y : 0;
 
-                                document.getElementById('hdOpen').innerText = c[0].toFixed(1) + " kg";
-                                document.getElementById('hdHigh').innerText = c[1].toFixed(1) + " kg";
-                                document.getElementById('hdLow').innerText = c[2].toFixed(1) + " kg";
-                                document.getElementById('hdClose').innerText = c[3].toFixed(1) + " kg";
+                                document.getElementById('hdTargetDate').innerText = candle[dIdx].x;
+                                document.getElementById('hdOpen').innerText = c[0].toFixed(1);
+                                document.getElementById('hdHigh').innerText = c[1].toFixed(1);
+                                document.getElementById('hdLow').innerText = c[2].toFixed(1);
+                                document.getElementById('hdClose').innerText = c[3].toFixed(1);
                                 document.getElementById('hdMA7').innerText = m7;
                                 document.getElementById('hdMA30').innerText = m30;
-                                document.getElementById('hdVolume').innerText = volRaw.toFixed(1) + " kg";
+                                document.getElementById('hdVolume').innerText = volRaw;
                             }
                         },
                         mouseLeave: function() {
                             if(candle.length > 0) {
                                 var last = candle[candle.length - 1];
-                                document.getElementById('hdOpen').innerText = last.y[0].toFixed(1) + " kg";
-                                document.getElementById('hdHigh').innerText = last.y[1].toFixed(1) + " kg";
-                                document.getElementById('hdLow').innerText = last.y[2].toFixed(1) + " kg";
-                                document.getElementById('hdClose').innerText = last.y[3].toFixed(1) + " kg";
+                                document.getElementById('hdTargetDate').innerText = last.x;
+                                document.getElementById('hdOpen').innerText = last.y[0].toFixed(1);
+                                document.getElementById('hdHigh').innerText = last.y[1].toFixed(1);
+                                document.getElementById('hdLow').innerText = last.y[2].toFixed(1);
+                                document.getElementById('hdClose').innerText = last.y[3].toFixed(1);
                                 
                                 var lastMa7 = ma7[ma7.length - 1] && ma7[ma7.length - 1].y !== null ? ma7[ma7.length - 1].y.toFixed(1) : '--';
                                 var lastMa30 = ma30[ma30.length - 1] && ma30[ma30.length - 1].y !== null ? ma30[ma30.length - 1].y.toFixed(1) : '--';
@@ -721,7 +771,7 @@
                                 
                                 document.getElementById('hdMA7').innerText = lastMa7;
                                 document.getElementById('hdMA30').innerText = lastMa30;
-                                document.getElementById('hdVolume').innerText = lastVol.toFixed(1) + " kg";
+                                document.getElementById('hdVolume').innerText = lastVol;
                             }
                         }
                     }
@@ -729,7 +779,11 @@
                 stroke: { width: [1, 1.5, 1.5, 0], curve: 'smooth' },
                 xaxis: { 
                     type: 'category',
-                    labels: { show: true, rotate: 0 }
+                    labels: { 
+                        show: true, 
+                        rotate: 0,
+                        hideOverlappingLabels: true /* 横幅最大化時に日付が詰まって重なるのを防止 */
+                    }
                 },
                 yaxis: [
                     {
@@ -747,16 +801,21 @@
                     { seriesName: '価格推移', show: false, min: yMin, max: yMax },
                     { seriesName: '価格推移', show: false, min: yMin, max: yMax },
                     {
-                        seriesName: '売買代金(出来高)',
+                        seriesName: '取引回数',
                         opposite: true,
                         show: false, 
-                        max: function(maxVal) { return maxVal > 0 ? maxVal * 4.2 : 400; }, 
+                        max: function(maxVal) { return maxVal > 0 ? maxVal * 4.2 : 40; }, 
                         min: 0
                     }
                 ],
                 grid: { 
                     borderColor: '#2a2e39',
-                    padding: { left: -10, right: -10 }
+                    padding: { 
+                        left: -18,  /* 🛠️ グラフの描画領域を左限界まで拡大 */
+                        right: -18, /* 🛠️ グラフの描画領域を右限界まで拡大 */
+                        top: 0,
+                        bottom: 0
+                    }
                 },
                 colors: ['#2962ff', '#ff9800', '#e91e63', '#2a2e39'], 
                 plotOptions: { 
@@ -879,7 +938,7 @@
                 
                 if (isApproachingCenter && !isPrimeZone) {
                     pool.push(
-                        `【最優秀アプローチ】現在、極めて計画的かつ理想的な「中心値への軟着陸（ソフトランディング）」が進行しています。市場参加者のコンセンサスを得た無理のない確かな足取りであり、抜群のコントロール意識として高く評価されています。`,
+                        `【中心値への軟着陸成功】現在、極めて計画的かつ理想的な「中心値への軟着陸（ソフトランディング）」が進行しています。市場参加者のコンセンサスを得た無理のない確かな足取りであり、抜群のコントロール意識として高く評価されています。`,
                         `【理想的な巡航速度】急激な乱高下を徹底的に排除し、じわじわと、かつ着実に適正値へと歩幅を合わせています。チャートの歪みをゆっくりと修正していくこのプロセスこそ、美しいトレンドモデルです。`
                     );
                 }
