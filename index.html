@@ -28,10 +28,13 @@
             border-left: 4px solid #2962ff;
             padding-left: 8px;
         }
-        .grid {
+        .grid-input-row {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .memo-row {
             margin-bottom: 15px;
         }
         .grid-2 {
@@ -46,6 +49,7 @@
             font-weight: bold;
             font-size: 0.85rem;
             color: #848e9c;
+            white-space: nowrap;
         }
         input, select {
             width: 100%;
@@ -153,6 +157,7 @@
         }
         .ohlc-label { color: #848e9c; }
         .ohlc-val { color: #fff; font-weight: bold; }
+        .ohlc-val-right { text-align: right; width: 100%; display: inline-block; }
 
         .ma-display-flex {
             display: flex;
@@ -176,23 +181,34 @@
             font-weight: bold;
         }
         
+        /* 適正相場レンジ表示スタイル */
         .fair-wp-display {
             background: #1e222d;
-            padding: 12px;
+            padding: 15px;
             border-radius: 8px;
             border: 1px dashed #2a2e39;
             font-size: 0.9rem;
             color: #fff;
             text-align: left;
         }
-        .fair-wp-label-text {
-            color: #c5c7d0;
+        .fair-wp-group {
+            margin-bottom: 12px;
         }
-        .fair-wp-value {
+        .fair-wp-group:last-child {
+            margin-bottom: 0;
+        }
+        .fair-wp-label-text {
+            display: block;
+            color: #848e9c;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        .fair-wp-value-block {
+            display: block;
             font-size: 1.1rem;
             font-weight: bold;
-            margin-top: 5px;
-            line-height: 1.6;
+            font-family: monospace;
         }
         .fair-wp-num {
             color: #2962ff;
@@ -201,7 +217,7 @@
             color: #08d158;
         }
         
-        /* --- 入力履歴レイアウト（メモ幅最大化） --- */
+        /* --- 入力履歴レイアウト --- */
         .history-list {
             font-size: 0.85rem;
             max-height: 330px;
@@ -288,19 +304,19 @@
     </div>
 
     <div class="card">
-        <div class="grid">
+        <div class="grid-input-row">
             <div>
                 <label>日時</label>
                 <input type="datetime-local" id="marketDateTime">
             </div>
             <div>
-                <label>Weight (例: 65.3 または 653 と入力) ※空欄可</label>
-                <input type="number" id="weightPrice" step="0.1" placeholder="65.3">
+                <label>Weight ※空欄可</label>
+                <input type="number" id="weightPrice" step="0.1" placeholder="例: 65.3 または 653">
             </div>
-            <div>
-                <label>memo (行動ログ・メモ) ※空欄可</label>
-                <input type="text" id="weightMemo" placeholder="例: 食事後、トイレ後、入浴後など">
-            </div>
+        </div>
+        <div class="memo-row">
+            <label>memo (行動ログ・メモ) ※空欄可</label>
+            <input type="text" id="weightMemo" placeholder="例: 食事後、トイレ後、入浴後など">
         </div>
         <button onclick="savePrice()">入力</button>
     </div>
@@ -308,39 +324,42 @@
     <div class="card" style="padding: 20px 10px;">
         <div class="ticker-container" style="padding: 0 10px;">
             <div class="ticker-price" id="tkPrice">--.--</div>
-            <div class="ticker-meta" id="tkDate">(==/== ==:== 大引)</div>
+            <div class="ticker-meta" id="tkDate">(==/== ==:== 週大引)</div>
             <div class="ticker-change" id="tkChange">--.-- (--%)</div>
         </div>
 
         <div class="chart-tab-nav" style="margin-left: 10px; margin-right: 10px;">
-            <span class="active">トップ</span>
+            <span class="active">週足トップ</span>
             <span>時系列</span>
             <span>構成銘柄</span>
             <span>関連ファンド</span>
         </div>
 
         <div class="ohlc-info-table" style="margin-left: 10px; margin-right: 10px;">
-            <div class="ohlc-cell ohlc-cell-full"><span class="ohlc-label">取引日時</span><span class="ohlc-val" id="hdTargetDate" style="color: #2962ff;">----/--/--</span></div>
+            <div class="ohlc-cell ohlc-cell-full">
+                <span class="ohlc-label">取引日時</span>
+                <span class="ohlc-val ohlc-val-right" id="hdTargetDate">--------- ---------</span>
+            </div>
             <div class="ohlc-cell"><span class="ohlc-label">始値</span><span class="ohlc-val" id="hdOpen">--.-</span></div>
             <div class="ohlc-cell"><span class="ohlc-label">高値</span><span class="ohlc-val" id="hdHigh">--.-</span></div>
             <div class="ohlc-cell"><span class="ohlc-label">安値</span><span class="ohlc-val" id="hdLow">--.-</span></div>
             <div class="ohlc-cell"><span class="ohlc-label">終値</span><span class="ohlc-val" id="hdClose">--.-</span></div>
-            <div class="ohlc-cell"><span class="ohlc-label">前日終値</span><span class="ohlc-val" id="hdPrevClose">--.-</span></div>
+            <div class="ohlc-cell"><span class="ohlc-label">前週終値</span><span class="ohlc-val" id="hdPrevClose">--.-</span></div>
             <div class="ohlc-cell"><span class="ohlc-label">年初来高値</span><span class="ohlc-val" id="hdYearHigh" style="color: #f23645;">--.-</span></div>
             <div class="ohlc-cell"><span class="ohlc-label">取引回数</span><span class="ohlc-val" id="hdVolume">--</span></div>
             <div class="ohlc-cell"><span class="ohlc-label">年初来安値</span><span class="ohlc-val" id="hdYearLow" style="color: #08d158;">--.-</span></div>
         </div>
 
         <div class="ma-display-flex" style="padding: 4px 10px;">
-            <div style="color: #ff9800;">● 5日移動平均: <span id="hdMA7" style="color:#fff; font-weight:bold;">--.-</span></div>
-            <div style="color: #e91e63;">● 25日移動平均: <span id="hdMA30" style="color:#fff; font-weight:bold;">--.-</span></div>
+            <div style="color: #ff9800;">● 7週移動平均: <span id="hdMA7" style="color:#fff; font-weight:bold;">--.-</span></div>
+            <div style="color: #e91e63;">● 30週移動平均: <span id="hdMA30" style="color:#fff; font-weight:bold;">--.-</span></div>
         </div>
 
         <div id="chart" style="margin-top: 5px; width: 100%;"></div>
 
         <div class="chart-period-selector" style="padding: 5px 10px 0 10px;">
-            <span>1日</span>
-            <span class="active">3ヶ月</span>
+            <span class="active">週足レンジ</span>
+            <span>3ヶ月</span>
             <span>6ヶ月</span>
             <span>1年</span>
             <span>5年</span>
@@ -358,7 +377,7 @@
         <div class="grid-2">
             <div>
                 <label>身長 (cm)</label>
-                <input type="number" id="userHeight" placeholder="170" value="170">
+                <input type="number" id="userHeight" step="0.1" placeholder="170.0" value="170.0">
             </div>
             <div>
                 <label>性別</label>
@@ -371,12 +390,8 @@
         <button onclick="saveProfile()" class="btn-secondary">プロフィールを保存</button>
         
         <div class="fair-wp-display">
-            <div style="color: #848e9c; font-weight: bold; margin-bottom: 5px; font-size: 0.85rem;">算出された適正相場レンジ</div>
-            <div class="fair-wp-value" id="fairWpTarget">
-                <span class="fair-wp-label-text">中心値 (BMI22):</span> <span class="fair-wp-num">---kg</span><br>
-                <span class="fair-wp-label-text">Prime Value (BMI21～23):</span> <span class="prime-wp-num">---kg ～ ---kg</span><br>
-                <span class="fair-wp-label-text">Fair Value (BMI18.5～25):</span> <span class="fair-wp-num">---kg ～ ---kg</span>
-            </div>
+            <div style="color: #fff; font-weight: bold; margin-bottom: 12px; font-size: 0.85rem; border-bottom: 1px solid #2a2e39; padding-bottom: 5px;">算出された適正相場レンジ</div>
+            <div id="fairWpTarget"></div>
         </div>
     </div>
 
@@ -392,7 +407,7 @@
         setNowDateTime();
 
         function loadProfile() {
-            var profile = JSON.parse(localStorage.getItem('weightMarketProfile')) || { height: 170, gender: 'male' };
+            var profile = JSON.parse(localStorage.getItem('weightMarketProfile')) || { height: 170.0, gender: 'male' };
             document.getElementById('userHeight').value = profile.height;
             document.getElementById('userGender').value = profile.gender;
         }
@@ -515,9 +530,33 @@
             element.addEventListener('touchcancel', cancel);
         }
 
+        function getWeekRangeInfo(dateStr) {
+            var d = new Date(dateStr);
+            var day = d.getDay();
+            var diffToMonday = d.getDate() - (day === 0 ? 6 : day - 1);
+            
+            var monday = new Date(d.setDate(diffToMonday));
+            var sunday = new Date(new Date(monday).setDate(monday.getDate() + 6));
+
+            var formatYMD = function(targetDate) {
+                var y = targetDate.getFullYear();
+                var m = ('0' + (targetDate.getMonth() + 1)).slice(-2);
+                var d = ('0' + targetDate.getDate()).slice(-2);
+                return `${y}${m}${d}`;
+            };
+
+            var monStr = formatYMD(monday);
+            var sunStr = formatYMD(sunday);
+            
+            return {
+                key: monStr,
+                displayText: monStr + '-' + sunStr
+            };
+        }
+
         function loadMarketData(shouldUpdateReport) {
             var rawHistory = JSON.parse(localStorage.getItem('weightMarketRawData')) || [];
-            var profile = JSON.parse(localStorage.getItem('weightMarketProfile')) || { height: 170, gender: 'male' };
+            var profile = JSON.parse(localStorage.getItem('weightMarketProfile')) || { height: 170.0, gender: 'male' };
             var heightM = profile.height / 100;
 
             rawHistory = rawHistory.map(item => {
@@ -534,9 +573,18 @@
             var fairMaxKg = Math.round((25 * heightM * heightM) * 10) / 10;
 
             document.getElementById('fairWpTarget').innerHTML = `
-                <span class="fair-wp-label-text">中心値 (BMI22):</span> <span class="fair-wp-num">${fairCenterKg.toFixed(1)}kg</span><br>
-                <span class="fair-wp-label-text">Prime Value (BMI21～23):</span> <span class="prime-wp-num">${primeMinKg.toFixed(1)}kg ～ ${primeMaxKg.toFixed(1)}kg</span><br>
-                <span class="fair-wp-label-text">Fair Value (BMI18.5～25):</span> <span class="fair-wp-num">${fairMinKg.toFixed(1)}kg ～ ${fairMaxKg.toFixed(1)}kg</span>
+                <div class="fair-wp-group">
+                    <span class="fair-wp-label-text">中心値 (BMI22):</span>
+                    <span class="fair-wp-value-block fair-wp-num">${fairCenterKg.toFixed(1)}kg</span>
+                </div>
+                <div class="fair-wp-group">
+                    <span class="fair-wp-label-text">Prime Value (BMI21～23):</span>
+                    <span class="fair-wp-value-block prime-wp-num">${primeMinKg.toFixed(1)} - ${primeMaxKg.toFixed(1)}kg</span>
+                </div>
+                <div class="fair-wp-group">
+                    <span class="fair-wp-label-text">Fair Value (BMI18.5～25):</span>
+                    <span class="fair-wp-value-block fair-wp-num">${fairMinKg.toFixed(1)} - ${fairMaxKg.toFixed(1)}kg</span>
+                </div>
             `;
 
             var historyListDiv = document.getElementById('historyList');
@@ -544,7 +592,6 @@
                 historyListDiv.innerHTML = '履歴がありません';
             } else {
                 historyListDiv.innerHTML = '';
-                
                 [...rawHistory].reverse().forEach(item => {
                     var displayTime = item.dateTime.replace('T', ' ');
                     var topRowContent = `<span>📅 ${displayTime}</span>`;
@@ -585,15 +632,28 @@
                 });
             }
 
-            var dailyTotalCounts = {};
+            var weekGroups = {}; 
+            var weekTotalVolume = {};
+
             rawHistory.forEach(item => {
-                var date = item.dateTime.substring(0, 10);
-                if (!dailyTotalCounts[date]) dailyTotalCounts[date] = 0;
-                dailyTotalCounts[date]++;
+                var rangeInfo = getWeekRangeInfo(item.dateTime.substring(0, 10));
+                var wKey = rangeInfo.key;
+
+                if (!weekTotalVolume[wKey]) weekTotalVolume[wKey] = 0;
+                weekTotalVolume[wKey]++;
+
+                if (item.wp !== null) {
+                    if (!weekGroups[wKey]) {
+                        weekGroups[wKey] = {
+                            rangeText: rangeInfo.displayText,
+                            items: []
+                        };
+                    }
+                    weekGroups[wKey].items.push(item);
+                }
             });
 
             var validWeightHistory = rawHistory.filter(item => item.wp !== null);
-
             var allWps = validWeightHistory.map(item => item.wp);
             var yearHigh = allWps.length > 0 ? Math.max(...allWps) : null;
             var yearLow = allWps.length > 0 ? Math.min(...allWps) : null;
@@ -601,35 +661,29 @@
             if (yearHigh !== null) document.getElementById('hdYearHigh').innerText = yearHigh.toFixed(1);
             if (yearLow !== null) document.getElementById('hdYearLow').innerText = yearLow.toFixed(1);
 
-            var dailyGroups = {};
-            validWeightHistory.forEach(item => {
-                var date = item.dateTime.substring(0, 10);
-                if (!dailyGroups[date]) dailyGroups[date] = [];
-                dailyGroups[date].push(item);
-            });
-
+            var sortedWeekKeys = Object.keys(weekGroups).sort();
             var candleData = [];
-            var volumeData = []; 
-            var dates = [];
-            for (var date in dailyGroups) {
-                dates.push(date);
-                var items = dailyGroups[date];
+            var volumeData = [];
+
+            sortedWeekKeys.forEach(wKey => {
+                var group = weekGroups[wKey];
+                var items = group.items;
                 var openW = items[0].wp;
                 var closeW = items[items.length - 1].wp;
                 var wValues = items.map(i => i.wp);
                 var highW = Math.max(...wValues);
                 var lowW = Math.min(...wValues);
-                candleData.push({ x: date, y: [openW, highW, lowW, closeW] });
-                
-                var dayCount = dailyTotalCounts[date] || 0;
-                volumeData.push({ x: date, y: dayCount, fillColor: '#2a2e39' });
-            }
+
+                candleData.push({ x: group.rangeText, y: [openW, highW, lowW, closeW] });
+                var volCount = weekTotalVolume[wKey] || 0;
+                volumeData.push({ x: group.rangeText, y: volCount, fillColor: '#2a2e39' });
+            });
 
             var ma7Data = [];
             var ma30Data = [];
-            var dayCount = candleData.length;
+            var weekCount = candleData.length;
 
-            for (var i = 0; i < dayCount; i++) {
+            for (var i = 0; i < weekCount; i++) {
                 if (i >= 6) {
                     var sum7 = 0;
                     for (var j = i - 6; j <= i; j++) sum7 += candleData[j].y[3];
@@ -665,16 +719,15 @@
                 tkDate.innerText = '(データなし)';
                 tkChange.innerText = '0.00 (0%)';
                 tkChange.className = 'ticker-change change-flat';
-                document.getElementById('hdTargetDate').innerText = "----/--/--";
+                document.getElementById('hdTargetDate').innerText = "--------- ---------";
                 return;
             }
 
             var lastCandle = candle[candle.length - 1];
             var currentWp = lastCandle.y[3];
-            var formattedDate = lastCandle.x.substring(5,10).replace('-', '/');
             
             tkPrice.innerText = currentWp.toFixed(2);
-            tkDate.innerText = `(${formattedDate} 15:45 大引)`;
+            tkDate.innerText = `(当週 週大引)`;
 
             if (candle.length >= 2) {
                 var prevWp = candle[candle.length - 2].y[3];
@@ -710,8 +763,6 @@
         }
 
         function updateChartDisplayAdvanced(candle, ma7, ma30, volume, center, min, max, pMin, pMax) {
-            var currentLastWp = candle.length > 0 ? candle[candle.length - 1].y[3] : center;
-            
             var wpsOnly = candle.map(c => c.y).flat();
             var historyMin = wpsOnly.length > 0 ? Math.min(...wpsOnly, min) : min;
             var historyMax = wpsOnly.length > 0 ? Math.max(...wpsOnly, max) : max;
@@ -724,10 +775,10 @@
             
             var chartOptions = {
                 series: [
-                    { name: '価格推移', type: 'candlestick', data: candle },
+                    { name: '週足推移', type: 'candlestick', data: candle },
                     { name: '短期トレンド(MA7)', type: 'line', data: ma7 },
                     { name: '長期トレンド(MA30)', type: 'line', data: ma30 },
-                    { name: '取引回数', type: 'bar', data: volume }
+                    { name: '週内取引回数', type: 'bar', data: volume }
                 ],
                 chart: { 
                     type: 'line', 
@@ -744,7 +795,7 @@
                             if (dIdx !== undefined && dIdx !== -1 && candle[dIdx]) {
                                 var c = candle[dIdx].y;
                                 var m7 = ma7[dIdx] && ma7[dIdx].y !== null ? ma7[dIdx].y.toFixed(1) : '--';
-                                var m30 = ma30[dIdx] && ma30[dIdx].y !== null ? ma30[dIdx].y.toFixed(1) : '--';
+                                var m30 = m30[dIdx] && m30[dIdx].y !== null ? m30[dIdx].y.toFixed(1) : '--';
                                 var volRaw = volume[dIdx] ? volume[dIdx].y : 0;
 
                                 document.getElementById('hdTargetDate').innerText = candle[dIdx].x;
@@ -782,13 +833,14 @@
                     type: 'category',
                     labels: { 
                         show: true, 
-                        rotate: 0,
+                        rotate: -15,
+                        style: { fontSize: '0.75rem' },
                         hideOverlappingLabels: true 
                     }
                 },
                 yaxis: [
                     {
-                        seriesName: '価格推移',
+                        seriesName: '週足推移',
                         min: yMin,
                         max: yMax,
                         labels: { 
@@ -799,10 +851,10 @@
                             }
                         }
                     },
-                    { seriesName: '価格推移', show: false, min: yMin, max: yMax },
-                    { seriesName: '価格推移', show: false, min: yMin, max: yMax },
+                    { seriesName: '週足推移', show: false, min: yMin, max: yMax },
+                    { seriesName: '週足推移', show: false, min: yMin, max: yMax },
                     {
-                        seriesName: '取引回数',
+                        seriesName: '週内取引回数',
                         opposite: true,
                         show: false, 
                         max: function(maxVal) { return maxVal > 0 ? maxVal * 4.2 : 40; }, 
@@ -821,7 +873,7 @@
                 colors: ['#2962ff', '#ff9800', '#e91e63', '#2a2e39'], 
                 plotOptions: { 
                     candlestick: { colors: { upward: '#f23645', downward: '#08d158' } },
-                    bar: { columnWidth: '75%', opacity: 0.8 }
+                    bar: { columnWidth: '60%', opacity: 0.8 }
                 },
                 legend: { show: false }, 
                 tooltip: { enabled: false }, 
@@ -897,69 +949,65 @@
             }
 
             var len = candleData.length;
-            var dayDiff = 0;
+            var weekDiff = 0;
             if (len > 0) {
                 var c = candleData[len - 1].y; 
-                dayDiff = c[3] - c[0];
+                weekDiff = c[3] - c[0];
             }
 
             var pool = [];
 
-            // 📊 🛠️ 【新規】数日間のトレンド（移動平均線）を織り交ぜた判定
             if (len >= 7) {
                 var lastMa7 = ma7Data[ma7Data.length - 1].y;
                 if (lastMa7 !== null) {
                     if (currentKg < lastMa7) {
                         pool.push(
-                            `【中期トレンド堅調】現在のスポット価格は5日移動平均線（MA7）を下回る水準で推移。ここ数日間のアベレージに対して、コントロールの効いたスマートな地合い（減少・維持方向）を形成しており、安定した需給環境と言えます。`,
-                            `【MA7サポート確認】中期移動平均線のクリアに伴い、市場の下値はより強固なものとなりました。突発的なノイズにブレない強さがあり、この中期的安定トレンドの継続性に期待がかかります。`
+                            `【中期トレンド堅調】現在のスポット価格は7週移動平均線（MA7）を下回る水準で推移。ここ数週間のアベレージに対して、コントロールの効いたスマートな地合い（減少・維持方向）を形成しており、安定した需給環境と言えます。`,
+                            `【MA7サポート確認】7週移動平均線のクリアに伴い、市場の下値はより強固なものとなりました。短期的な生活リズムのノイズにブレない強さがあり、中長期安定トレンドの継続性に期待がかかります。`
                         );
                     } else if (currentKg > lastMa7) {
                         pool.push(
-                            `【レジスタンスライン接近】現在の価格が5日移動平均線（MA7）を上回る上振れトレンドを形成しています。中期的アベレージに対してやや過熱感（増加傾向）があるため、ここからの反転・レンジ引き戻しに向けた引き締めが注目されます。`,
-                            `【地合いの調整局面】価格推移が移動平均を上振れる形で推移。ここ数日間の巡航軌道への復帰、および移動平均線の傾きを再びフラット以下へと安定させるためのマイルドな下押し（引き締め）が待たれる局面です。`
+                            `【レジスタンスライン接近】現在の価格が7週移動平均線（MA7）を上回る上振れトレンドを形成しています。数週間規模のアベレージに対してやや過熱感（増加傾向）があるため、ここからの反転・レンジ引き戻しに向けた引き締めが注目されます。`,
+                            `【地合いの調整局面】価格推移が7週移動平均を上振れる形で推移。ここ最近の巡航軌道への復帰、および移動平均線の傾きを再びフラット以下へと安定させるためのマイルドな下押し（引き締め）が待たれる局面です。`
                         );
                     }
                 }
             }
 
-            // 従来の値幅ベースの判定（プールに合流させ、多様なニュースを出力）
-            if (dayDiff >= 1.0) {
+            if (weekDiff >= 1.5) {
                 pool.push(
-                    `【臨時ニュース：ボラティリティ急上昇】本日の相場は、短期的な要因により価格が大きなプラス（上振れ）を記録しました。当相場では、こうした突発的な急騰は計画性を欠いた「スピード違反」と見なされやすく、明日は取引が沈静化し、元の巡航軌道へ戻るかどうかが焦点です。`,
-                    `【急なインフローに警戒】一時的な需給の偏り（出来高の急増）によりチャートが急角度で跳ね上がりましたが、当市場が最も評価するのは安定維持です。明日はこの乱高下の波をいかに素早く吸収し、穏やかなレンジに戻せるかが試されます。`
+                    `【臨時ニュース：週ボラティリティ急上昇】今週の相場は、短期的な要因が重なり1週間を通じて価格が大きなプラス（上振れ）を記録しました。当相場では計画性を欠いた「スピード違反」と見なされやすく、次週はこの過熱感が沈静化するかが焦点です。`,
+                    `【急なインフローに警戒】週単位での需給の偏り（一時的な蓄積）によりチャートが上方向に跳ね上がりましたが、当市場が最も評価するのは安定維持です。次週はこの波をいかに吸収し、穏やかなレンジに戻せるかが試されます。`
                 );
             }
-            if (dayDiff <= -1.0) {
+            if (weekDiff <= -1.5) {
                 pool.push(
-                    `【臨時ニュース：急激な下落を検知】本日、価格が下方に大きく乖離する荒れたアウトフローとなりました。一見すると身軽に見えますが、計画性のない急落は市場の信頼性を損なうため歓迎されません。無理のない「軟着陸（ソフトランディング）」に向けて下値を固める丁寧な値動きが求められます。`,
-                    `【下振れサプライズの発生】大幅な価格調整が1日で発生しました。当市場の基本理念である「ゆるやかな維持」の観点からは、突発的すぎるサインです。売り一巡感から、フラットでブレのない底堅い推移への移行が期待されます。`
+                    `【臨時ニュース：大幅な下落トレンド】今週、価格が下方に大きく乖離するアウトフローを記録しました。一見身軽ですが、計画性のない急落は持続性を損なうため歓迎されません。次週以降、無理のない「軟着陸（ソフトランディング）」に向けて下値を固める丁寧な値動きが求められます。`
                 );
             }
 
-            if (pool.length === 0 || Math.abs(dayDiff) < 1.0) {
+            if (pool.length === 0 || Math.abs(weekDiff) < 1.5) {
                 var isPrimeZone = (currentBMI >= 21.0 && currentBMI <= 23.0);
                 var isApproachingCenter = false;
                 if (len >= 2) {
                     var prevWp = candleData[len - 2].y[3];
                     var distPrev = Math.abs(prevWp - fairCenterKg);
                     var distCur = Math.abs(currentKg - fairCenterKg);
-                    if (distCur < distPrev && Math.abs(dayDiff) > 0) {
+                    if (distCur < distPrev && Math.abs(weekDiff) > 0) {
                         isApproachingCenter = true;
                     }
                 }
 
-                if (isPrimeZone && Math.abs(dayDiff) < 1.0) {
+                if (isPrimeZone && Math.abs(weekDiff) < 1.5) {
                     pool.push(
-                        `【ディフェンシブの極み】本日も価格のブレをノイズの範囲に抑え、盤石 of 盤石な「Prime Value」を維持しています。外部の雑音に惑わされないこの圧倒的な安定性は長期投資家に至高の安心感を与えており、市場の模範となる立ち振る舞いです。`,
-                        `【ガバナンス最高評価】理想的なレンジのど真ん中で、正確かつ揺るぎないフラット推移をキープ。激しい演出を嫌い、持続可能性のみを追求するその一貫した相場運営は、最高の格付けに値します。`
+                        `【ディフェンシブの極み】週内での日々の揺らぎを綺麗なヒゲとして吸収し、盤石な「Prime Value」を維持しています。1日のノイズに惑わされないこの圧倒的な安定性は長期投資家に至高の安心感を与えており、市場の模範となる立ち振る舞いです。`,
+                        `【ガバナンス最高評価】週足ベースで理想的なレンジのど真ん中を捉え、正確かつ揺るぎないフラット推移をキープ。激しい演出を嫌い、持続可能性のみを追求する一貫した相場運営は、最高の格付けに値します。`
                     );
                 }
                 
                 if (isApproachingCenter && !isPrimeZone) {
                     pool.push(
-                        `【中心値への軟着陸成功】現在、極めて計画的かつ理想的な「中心値への軟着陸（ソフトランディング）」が進行しています。市場参加者のコンセンサスを得た無理のない確かな足取りであり、抜群のコントロール意識として高く評価されています。`,
-                        `【理想的な巡航速度】急激な乱高下を徹底的に排除し、じわじわと、かつ着実に適正値へと歩幅を合わせています。チャートの歪みをゆっくりと修正していくこのプロセスこそ、美しいトレンドモデルです。`
+                        `【中心値への軟着陸成功】現在、週単位で極めて計画的かつ理想的な「中心値への軟着陸（ソフトランディング）」が進行しています。市場参加者のコンセンサスを得た無理のない確かな足取りであり、高いコントロール意識として評価されています。`
                     );
                 }
 
@@ -967,26 +1015,24 @@
                     var c1 = candleData[len - 1].y[3];
                     var c2 = candleData[len - 2].y[3];
                     var c3 = candleData[len - 3].y[3];
-                    if (Math.max(c1, c2, c3) - Math.min(c1, c2, c3) <= 0.5) {
+                    if (Math.max(c1, c2, c3) - Math.min(c1, c2, c3) <= 0.7) {
                         pool.push(
-                            `【ボックス圏での定常運転】ここ数日、チャートは極めて静かなレンジ相場を形成しています。値動きの揺れを最小限にとどめることに成功しており、安定した需給バランスのもとで強固な「地盤固め」を行っている好環境です。`,
-                            `【ボラティリティの低下】価格変動が完全に抑制され、フラットな横ばい推移が続いています。突発的なノイズを徹底して排除できている現状は、市場の健全性が非常に高い状態であることを示しています。`
+                            `【ボックス圏での定常運転】ここ数週間にわたり、チャートは極めて静かなレンジ相場を形成しています。週をまたいだ変動の揺れを最小限にとどめることに成功しており、強固な「地盤固め」を行っている好環境です。`,
+                            `【ボラティリティの低下】安定した横ばい推移が継続中。突発的なノイズを週足のヒゲとして綺麗に処理できている現状は、市場の健全性が非常に高い状態であることを示しています。`
                         );
                     }
                 }
 
-                if (dayDiff > 0) {
+                if (weekDiff > 0) {
                     pool.push(
-                        `【小幅な値幅調整】本日の取引は、微増（小さなプラス）の範囲内でマイルドに終了しました。過熱感はなく、日常の自然な揺らぎ（織り込み済みのノイズ）の範囲内であり、明日もこの落ち着いたリズムを維持できるかが焦点です。`,
-                        `【穏やかな右上がり】極めて静かに、わずかな上振れを記録。急激な乱高下を伴わないため、市場参加者に不安を与えない安心感のある足取りです。`
+                        `【マイルドな値幅調整】今週の取引は、微増（小さなプラス）の範囲内でマイルドに終了しました。過熱感はなく、1週間の生活リズムにおける自然な揺らぎの範囲内であり、次週もこの落ち着いたリズムを維持できるかが焦点です。`
                     );
-                } else if (dayDiff < 0) {
+                } else if (weekDiff < 0) {
                     pool.push(
-                        `【小幅な価格調整】本日の市場は、わずかなマイナス（微減）を記録し、綺麗に上値を抑える格好となりました。無理のない範囲での理想的な軌道微修正であり、ディフェンシブ銘柄としての高い安定性を維持しています。`,
-                        `【マイルドな押し目】極めて小さな値幅での下方スライドです。ブレや衝撃の少ない、非常にスマートなコントロールが効いた値動きとして評価できます。`
+                        `【小幅な下落調整】今週の市場は、わずかなマイナス（微減）を記録し、綺麗に上値を抑える格好となりました。無理のない範囲での理想的な軌道微修正であり、ディフェンシブ銘柄としての高い安定性を維持しています。`
                     );
                 } else {
-                    pool.push(`【変わらず、小休止】前日比フラット、市場は完全に均衡を保っています。材料出尽くし感のなか、非常にブレのない相場運営が継続しています。`);
+                    pool.push(`【変わらず、均衡状態】前週比フラット、市場は完全に均衡を保っています。非常にブレのない週足運営が継続しています。`);
                 }
             }
 
