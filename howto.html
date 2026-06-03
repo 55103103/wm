@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weight Market - 市場マニュアル</title>
+    <title>WEIGHT MARKET - 取引マニュアル</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -13,14 +13,9 @@
             margin: 0;
             line-height: 1.7;
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 10px 0;
-        }
         .card {
             background: #131722;
-            padding: 25px;
+            padding: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             margin-bottom: 15px;
@@ -32,185 +27,175 @@
             margin-top: 0;
             border-bottom: 2px solid #2962ff;
             padding-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
         h2 {
             color: #fff;
             font-size: 1.1rem;
-            margin-top: 30px;
+            margin-top: 20px;
             border-left: 4px solid #2962ff;
             padding-left: 8px;
         }
         h3 {
             color: #fff;
             font-size: 0.95rem;
-            margin-top: 20px;
-            margin-bottom: 8px;
+            margin-top: 15px;
         }
-        p, li {
+        p {
             font-size: 0.9rem;
-            color: #b2b5be;
+            margin: 8px 0;
         }
         ul {
             padding-left: 20px;
+            margin: 8px 0;
+            font-size: 0.9rem;
         }
         li {
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
-        strong {
-            color: #fff;
+        code {
+            background: #1e222d;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #ef5350;
+            font-family: monospace;
+            font-size: 0.85rem;
         }
-        .highlight {
-            color: #fff;
+        .btn-back {
+            display: inline-block;
+            background: #2962ff;
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
             font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            width: 100%;
+            box-sizing: border-box;
         }
-        
-        /* インデックス画面と完全同期したステータスバッジ */
-        .status-badge {
+        .btn-back:hover {
+            background: #1e4bd6;
+        }
+        .badge {
             display: inline-block;
             padding: 2px 6px;
             border-radius: 4px;
             font-size: 0.75rem;
             font-weight: bold;
-            background: #2a2e39;
-            color: #989898;
-            margin-right: 5px;
         }
-        .status-prime {
-            background: rgba(8, 209, 88, 0.2);
-            color: #08d158;
-            border: 1px solid rgba(8, 209, 88, 0.4);
-        }
-        .status-fair {
-            background: rgba(41, 98, 255, 0.2);
-            color: #2962ff;
-            border: 1px solid rgba(41, 98, 255, 0.4);
-        }
-
-        .btn-back {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: #2962ff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            text-decoration: none;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .btn-back:hover {
-            background: #1e4bd6;
-        }
-        .note-box {
+        .badge-prime { background: rgba(8, 209, 88, 0.2); color: #08d158; border: 1px solid rgba(8, 209, 88, 0.4); }
+        .badge-fair { background: rgba(41, 98, 255, 0.2); color: #2962ff; border: 1px solid rgba(41, 98, 255, 0.4); }
+        
+        .box-note {
             background: #1e222d;
             border: 1px dashed #434651;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-        }
-        
-        /* レーティング表用のスタイリッシュなテーブル */
-        .spec-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 12px;
-            margin-bottom: 15px;
-            font-size: 0.85rem;
-        }
-        .spec-table th, .spec-table td {
-            border: 1px solid #2a2e39;
             padding: 12px;
-            text-align: left;
-            vertical-align: top;
-        }
-        .spec-table th {
-            background: #1e222d;
-            color: #848e9c;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.85rem;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div style="margin-bottom: 15px;">
-            <a href="index.html" class="btn-back">⬅️ 取引画面（Market）へ戻る</a>
+    <div class="card">
+        <h1>📖 WEIGHT MARKET 取引マニュアル</h1>
+        <p>本アプリケーションは、あなた自身の体重を「上場銘柄の株価（スポット価格）」に見立て、中長期的な安定トレンドを監視・運用するための本格チャート型ガバナンスツールです。</p>
+        <a href="index.html" class="btn-back">⬅️ 取引画面（市場）へ戻る</a>
+    </div>
+
+    <div class="card">
+        <h2>1. 取引ルールと入力支援機能</h2>
+        
+        <h3>基本入力</h3>
+        <ul>
+            <li><strong>日時:</strong> 測定した日時を記録します。デフォルトで現在時刻が自動入力されます。</li>
+            <li><strong>Weight（スポット価格）:</strong> 現在の体重を入力します。</li>
+            <li><strong>memo（行動ログ）:</strong> 「食事後」「入浴後」などの状態や、メモを自由に残せます。</li>
+        </ul>
+
+        <h3>インテリジェント入力支援（高速タイピング対応）</h3>
+        <p>キーパッドからのドット（小数点）入力を省くため、<code>100</code> 以上の数値が入力された場合は<strong>自動的に10分の1（小数点第一位）に変換</strong>して処理されます。</p>
+        <div class="box-note">
+            <strong>例：</strong><br>
+            ・「<code>65.3</code>」と入力 ➡️ <code>65.3kg</code> として記録<br>
+            ・「<code>653</code>」と入力 ➡️ 自動で <code>65.3kg</code> に変換して記録
         </div>
 
-        <div class="card">
-            <h1>📖 HOW TO（利用規約・市場マニュアル）</h1>
-            <p>「Weight Market」へようこそ。本アプリは、ご自身の身体（Weight）を一つの「上場企業」に見立て、その数値変動を「株価チャート」として楽しむ市場シミュレーションゲームです。</p>
-            <p>一般的なヘルスケア・ダイエットアプリとは異なる市場原理が働いています。開始する前に、以下のルールと仕様をご確認ください。</p>
+        <h3>注文の取消（データ削除）</h3>
+        <ul>
+            <li>「入力履歴」セクションにある各履歴の<strong>【日時部分】を長押し（スマホ）またはクリック長押し（PC）</strong>することで、対象の注文（データ）を取り消すことができます。</li>
+        </ul>
+    </div>
 
-            <h2>1. 当市場の基本理念（脱・ダイエット）</h2>
-            <p>当市場では、体重の減少を「善」、増加を「悪」とするような主観的な健康管理観念を完全に排除しています。weight数値の増減は<span class="highlight">「株価の値動き（Market Price）」</span>として扱われます。</p>
-            <ul>
-                <li><span class="highlight">株価上昇（買い優勢）：</span> weight数値の上昇</li>
-                <li><span class="highlight">株価下落（売り優勢）：</span> weight数値の減少。構造改革による資産のスリム化・デトックス。</li>
-                <li><span class="highlight">横ばい（レンジ相場）：</span> 次なるトレンド形成に向けた日柄調整、定常運転。</li>
-            </ul>
+    <div class="card">
+        <h2>2. マーケットプロフィールと適正レンジ</h2>
+        <p>画面下部のプロフィール設定に「身長」と「性別」を入力し、保存することで、BMIに基づいた客観的な評価レンジが動的に算出されます。</p>
+        
+        <h3>精密なプロフィール管理</h3>
+        <ul>
+            <li>身長はより正確な分析を行うため、<strong>小数点第一位（例: <code>170.5</code> cm）</strong>まで入力可能です。</li>
+            <li>スマートフォンの狭い画面でも数値が重ならないよう、項目名と算出データが2行に分かれて美しくレイアウトされます。</li>
+        </ul>
 
-            <h2>2. 評価基準とインジケーター（適正相場レンジ）</h2>
-            <p>通常の株式市場では「株価は高ければ高いほど良い」とされますが、当市場では異なります。プロフィールに設定された身長ベースのBMIを元に、「適正範囲での長期継続およびコントロール安定性」が最も高く評価され、市場最上部の「<strong>📊 YOUR WEIGHT MARKET 概況</strong>」に以下のステータスバッジとして開示されます。</p>
-            
-            <table class="spec-table">
-                <thead>
-                    <tr>
-                        <th style="width: 25%;">レーティングバッジ</th>
-                        <th style="width: 25%;">対象レンジ</th>
-                        <th style="width: 50%;">市場の評価および解説</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><span class="status-badge status-prime">🏆 Prime Value</span></td>
-                        <td>BMI 21.0 〜 23.0</td>
-                        <td><strong>超優良・プライムレンジ推移。</strong> 中心値（BMI22）に近く、ボラティリティ（値動きの荒れ）が最も安定して抑制されている至高の経営状態です。</td>
-                    </tr>
-                    <tr>
-                        <td><span class="status-badge status-fair">⚖️ Fair Value</span></td>
-                        <td>BMI 18.5 〜 25.0</td>
-                        <td><strong>健全なスタンダードレンジ維持。</strong> スタンダードな適正相場の範囲内であり、健全なガバナンス（体調維持）が正常に機能している状態です。</td>
-                    </tr>
-                    <tr>
-                        <td><span class="status-badge">⚠️ Under Review</span></td>
-                        <td>上記未満 または 超過</td>
-                        <td><strong>要ガバナンス強化・調整局面。</strong> 相場が適正値を逸脱しています。無理のない巡航速度で、緩やかに適正値へ向かう<span class="highlight">軟着陸（ソフトランディング）</span>プロセスが求められます。</td>
-                    </tr>
-                </tbody>
-            </table>
+        <h3>算出される3つの指標</h3>
+        <ul>
+            <li><strong>中心値 (BMI 22):</strong> 市場が目指すべき理想的な基準価格（適正価格）です。</li>
+            <li><strong>Prime Value (BMI 21～23):</strong> 最も健全かつガバナンスが行き届いている「超優良プライムレンジ」です。</li>
+            <li><strong>Fair Value (BMI 18.5～25):</strong> 健全な取引が行われている「スタンダード（一般適正）レンジ」です。</li>
+        </ul>
+    </div>
 
-            <h2>3. 入力ウィンドウの運用ルールと仕様</h2>
-            <p>無駄な表示を極限まで削ぎ落としたスタイリッシュな専用入力エリア（青い「入力」ボタンが目印のウィンドウ）のデータ処理ロジックです。</p>
-            
-            <h3>■ Weight（株価）の入力</h3>
-            <p>数値を入力して実行すると、チャート（ローソク足および移動平均線）が更新され、本日の「市場概況レポート」が新たに生成・開示されます。なお、100以上の数値（例：653）がドットの打ち忘れなどで入力された場合は、市場の安全性を保つため自動的に10分の1にデノミネーション（補正）され、「65.3」として安全にリスティングされます。</p>
+    <div class="card">
+        <h2>3. チャートおよび板情報の見方</h2>
+        <p>当市場は、日々の細かなノイズを排除し、本質的なトレンドを捉えるために<strong>「週足（Week足）集計」</strong>を採用しています。</p>
 
-            <h3>■ memo（行動ログ・メモ）の取り扱いと完全秘匿性</h3>
-            <p>日々の行動やイベント（食事、入浴、体調など）をメモとして記録できます。メモの取り扱いには厳格な監査基準が適用されています。</p>
-            <ul>
-                <li><span class="highlight">レポートの更新停止（メモ注文）：</span> 体重を空欄にして「memoのみ」を入力した場合、市場価格に直接の変動はないため、市場概況レポートの文章は更新されず前回の内容を維持します（履歴とチャートの日時プロットは追加されます）。</li>
-                <li><span class="highlight">インサイダー情報の保護（完全クローズド）：</span> メモに記載されたテキスト内容は、ユーザーが振り返るためだけの社外秘ログ（クローズドな情報）としてブラウザ内にのみ厳重に管理されます。市場概況レポートを自動生成するロジックの分析情報源として、<span class="highlight">メモの内容が読み取られたり、システムに利用されたりすることは一切ありません。</span></li>
-            </ul>
+        <h3>統合ローソク足チャート</h3>
+        <ul>
+            <li>月曜日～日曜日までの期間のデータを1本の「ローソク足」としてまとめます。</li>
+            <li><strong>始値（Open）:</strong> その週に初めて測定された価格。</li>
+            <li><strong>高値（High）/ 安値（Low）:</strong> その週の最高値・最安値（チャート上では縦の「ヒゲ」として表現）。</li>
+            <li><strong>終値（Close）:</strong> その週の最後に測定された価格。</li>
+            <li><strong>陽線（赤色）:</strong> 週の初めより終わりに価格が上昇したことを示します。</li>
+            <li><strong>陰線（緑色）:</strong> 週の初めより終わりに価格が下落（減少）したことを示します。</li>
+        </ul>
 
-            <h2>5. 免責事項・データ保存について</h2>
-            <div class="note-box">
-                <p style="margin-top: 0; color: #fff; font-weight: bold;">⚠️ 取引上の注意</p>
-                <ul>
-                    <li>本アプリで算出される適正値（BMI22、および各レンジの範囲）は、一般的な数理モデルに基づいたシステム上の仮定値です。個人の医療的な診断や健康指導に代わるものではありません。</li>
-                    <li>入力されたすべてのデータ（プロフィール、取引履歴）は、ご使用のブラウザのローカルストレージ（LocalStorage）にのみローカル保存されます。外部サーバー等への送信は一切行われないため、ブラウザのキャッシュクリア等を行うとデータが消失します。重要なバックアップ（履歴の保全）は各自の責任で行ってください。</li>
-                </ul>
-            </div>
+        <h3>テクニカルインジケーター（移動平均線）</h3>
+        <ul>
+            <li><span style="color: #ff9800;">●</span> <strong>7週移動平均（MA7）:</strong> 短期的なトレンド。生活リズムの軌道。</li>
+            <li><span style="color: #e91e63;">●</span> <strong>30週移動平均（MA30）:</strong> 長期的なトレンド。構造的な体質変化。</li>
+        </ul>
 
-            <div style="text-align: center; margin-top: 30px;">
-                <a href="index.html" class="btn-back">⬅️ 取引画面（Market）へ戻る</a>
-            </div>
-        </div>
+        <h3>取引回数（Volume）</h3>
+        <ul>
+            <li>チャート下部のグレーの棒グラフは、その週にあなたが「市場へアクセスして測定・記録を行った回数」を示します。回数が多いほど市場の流動性が高く、データの信頼性が増します。</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>4. 市場概況（AIレポート）と格付けバッジ</h2>
+        <p>最新のスポット価格や移動平均線の位置関係、前週比のボラティリティ（変動率）をアルゴリズムが多角的に分析し、現在の市場ステータスをリアルタイムに格付けします。</p>
+
+        <ul>
+            <li><span class="badge badge-prime">🏆 Prime Value</span> : 超優良レンジを維持し、極めて高いレベルで自己コントロールされている状態。</li>
+            <li><span class="badge badge-fair">⚖️ Fair Value</span> : 健全な一般適正レンジを維持している安定状態。</li>
+            <li><span class="badge" style="background: #2a2e39; color: #989898;">⚠️ Under Review</span> : 適正レンジから逸脱、または過度なボラティリティが発生しており、ガバナンス（生活習慣）の再評価・引き締めが必要な調整局面。</li>
+        </ul>
+        <p style="font-size: 0.85rem; color: #848e9c; margin-top: 10px;">※データが不足している場合（初期状態など）は、「データが不足しています」と表示されます。まずは定期的にデータを記録してください。</p>
+    </div>
+
+    <div class="card">
+        <h2>5. 利用規約・プライバシーポリシー</h2>
+        <h3>データ利活用について</h3>
+        <p>本アプリケーションで入力されたデータ（日時、体重、メモ、プロフィール）は、すべてお客様のご利用中のブラウザ内部（<code>LocalStorage</code>）にのみ暗号化されず直接保存されます。外部のサーバー等へ送信されることは一切ありません。</p>
+        
+        <h3>自己責任原則</h3>
+        <p>本ツールは健康管理のモチベーション維持を目的としたエンターテインメント・ガバナンスツールであり、医療的な診断やアドバイスを提供するものではありません。市場の急変動（急激な体重増減）の際は、ご自身のファンダメンタルズ（体調）を最優先し、必要に応じて専門医（医療機関）へご相談ください。</p>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <a href="index.html" class="btn-back">⬅️ 取引画面（市場）へ戻る</a>
     </div>
 
 </body>
